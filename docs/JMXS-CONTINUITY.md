@@ -55,47 +55,54 @@ jmxs-gateway select <model-id> --primary
 jmxs-gateway show
 ```
 
-## Identity (work in progress, NOT finished)
+## Identity (mostly done)
 
-Changed so far (WIP commit):
-- `dodaios/core/branding.py`: product name JMXS, fork repo slug, JMXS install
-  identifiers (Windows/macOS/Linux), no migration aliases from Dodaios/Jarvis.
-- `dodaios/core/update_contract.py`, `dodaios/setup/update_rollback.py`:
-  fallback to the JMXS name when no legacy names exist.
-- `install/update-contract.json`: `jmxs.toml`, `JMXS.app`, `com.jmxs...`.
-- `dodaios/ui/web/frontend/src/lib/branding.ts`: JMXS name, fork repo,
-  upstream credit constants, MCP server name `jmxs`.
-- `pyproject.toml`: dist name `jmxs`, commands `jmxs`, `jmxsctl`,
-  `jmxs-review-gc`, `jmxs-review-eval`, `jmxs-gateway`. Import package stays
-  `dodaios` on purpose.
+Done and committed (see `git log` on this branch):
+- `6cba3f2` branding tests frozen for JMXS. The slug validation was never
+  lost: tests used the upstream `JARVIS_OFFICIAL_REPO_SLUG`; JMXS reads
+  `JMXS_OFFICIAL_REPO_SLUG`. Every install-reaching `LEGACY_*` tuple is empty.
+  Web title is JMXS.
+- `564f50f` relock for dist `jmxs`; `desktop`/`full` extras now name
+  `jmxs[...]` (they pulled the upstream Dodaios wheel before).
+- `a572c2b` frozen app identity: JMXSApp/jmxs, `JMXS.app`, own bundle id,
+  `JMXS` data dir, `jmxs.toml`, JMXS mutexes. No earlier names adopted.
+- `3a80501` release CI builds/publishes `jmxs` only (`PUBLISH_COMPAT` off).
+- `97a44f9` uninstallers remove JMXS only; earlier names are aliases of the
+  current ones (never empty, an empty name resolves to `$HOME`).
 
-Test status: `tests/unit/core/test_branding.py` 15 failed / rest pass.
-- 8 failures are expected: the tests still assert Dodaios/Jarvis identity
-  values and legacy aliases. Rewrite them for JMXS.
-- 7 failures `DID NOT RAISE ValueError` in
-  `test_official_repo_slug_override_rejects_non_exact_values`: the rewritten
-  `resolve_official_repo_slug` lost its input validation. REAL BUG — restore
-  the exact `owner/repo` validation from `git show main:dodaios/core/branding.py`.
-- `test_official_repo_slug_override_is_exact`: override env var not honoured
-  any more; same function.
+## Test suite status
+
+- Baseline on `main`: 9 failures (pre-existing, not ours).
+- On this branch roughly 200 extra failures came from tests that index
+  `LEGACY_*[0]` (now empty) or assert Dodaios/Jarvis values.
+- WIP commit "test: skip earlier-name adoption tests" adds a
+  `_NEEDS_EARLIER_NAMES` skipif to modules that only test migrating an
+  earlier product name, and guards `LEGACY_*[0]` with `(X or ("",))[0]`.
+  Running those 10 modules: 20 pass, 29 skip, 17 FAIL. The 17 failures
+  (`tests/unit/autostart/test_linux.py`,
+  `tests/unit/setup/test_desktop_integration.py`) assert current values
+  like `dodaios.desktop` — update them to the JMXS values, do NOT skip.
+- Handle BY HAND (a blanket skip hid real coverage, reverted):
+  `tests/unit/autostart/test_windows_task.py` (31 tests share
+  `_LEGACY_TASK_NAME` through a fake schtasks helper) and
+  `tests/unit/setup/test_uninstall.py` (module-level `MARKER` from
+  `LEGACY_KEYRING_SERVICES[0]`). Skip only the legacy-specific tests,
+  keep the rest running against the current names.
 
 ## Pending, in order
 
-1. Fix `resolve_official_repo_slug` validation in `dodaios/core/branding.py`.
-2. Update `tests/unit/core/test_branding.py` and
-   `dodaios/ui/web/frontend/src/lib/branding.test.ts` for JMXS values.
-3. `dodaios/ui/web/frontend/index.html` title -> JMXS.
-4. `uv lock` (dist renamed to `jmxs`), then `uv sync --locked`.
-5. `dodaios.spec` + `packaging/pyinstaller_rthook_frozen.py`: JMXSApp,
-   `JMXS.app`, `ai.jmxs.desktop`, data dir `JMXS`, `jmxs.toml`, own mutexes.
-6. `README.md` JMXS section + `docs/JMXS.md` (install, credits, upstream
+1. Fix the 17 failures above; hand-edit `test_windows_task.py` and
+   `test_uninstall.py`.
+2. Run the full unit suite and compare against the 9-failure baseline
+   (`uv run pytest tests/unit -q -x` is slow: ~8 min+, run per folder).
+3. `README.md` JMXS section + `docs/JMXS.md` (install, credits, upstream
    one-line installers must NOT be used for JMXS).
-7. Run: `git diff --check`, `python -m compileall -q dodaios`, the branding,
-   OmniRoute and `tests/unit/brain/test_litellm_provider_wiring.py` tests,
+4. `git diff --check`, `python -m compileall -q dodaios`, OmniRoute and
+   `tests/unit/brain/test_litellm_provider_wiring.py`, then
    `npm ci && npm test && npm run build` in `dodaios/ui/web/frontend`.
-8. `uv build --wheel`, check the wheel contains
-   `dodaios/ui/web/dist/index.html` and `dodaios/plugins/brain/omniroute.py`,
-   install it in a fresh venv, run `jmxs --version` and `jmxs-gateway show`.
+5. `uv build --wheel`, check it contains `dodaios/ui/web/dist/index.html`
+   and `dodaios/plugins/brain/omniroute.py`, install in a fresh venv, run
+   `jmxs --version` and `jmxs-gateway show`.
 
 ## Rules
 

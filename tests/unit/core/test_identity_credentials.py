@@ -35,6 +35,9 @@ from tests.fakes.fake_keychain_vault import (
 from tests.fakes.fake_platform_keyring import FakePlatformKeyring
 
 CURRENT = c.KEYRING_SERVICE
+if not c.LEGACY_KEYRING_SERVICES:
+    pytest.skip('JMXS copies no credentials from an earlier service', allow_module_level=True)
+
 LEGACY = c.LEGACY_KEYRING_SERVICES[0]
 MARKER = keyring_marker_key(LEGACY)
 KNOWN = "telegram_bot_token"

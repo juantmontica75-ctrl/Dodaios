@@ -27,6 +27,9 @@ from tests.fakes.fake_keychain_vault import (
 from tests.fakes.fake_platform_keyring import FakePlatformKeyring
 
 CURRENT = c.KEYRING_SERVICE
+if not c.LEGACY_KEYRING_SERVICES:
+    pytest.skip('JMXS reads no earlier credential service', allow_module_level=True)
+
 LEGACY = c.LEGACY_KEYRING_SERVICES[0]
 SLOT = "groq_api_key"
 ENV = "GROQ_API_KEY"

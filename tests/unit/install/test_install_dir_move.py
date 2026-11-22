@@ -33,6 +33,9 @@ ENGINE = REPO / "dodaios" / "core" / "identity_migration.py"
 ENGINE_PATH = "dodaios/core/identity_migration.py"
 
 CURRENT = branding.DEFAULT_INSTALL_DIR_NAME
+if not branding.LEGACY_DEFAULT_INSTALL_DIR_NAMES:
+    pytest.skip('JMXS has no earlier install folder to move', allow_module_level=True)
+
 LEGACY = branding.LEGACY_DEFAULT_INSTALL_DIR_NAMES[0]
 OVERRIDES = ("JARVIS_INSTALL_DIR", "DODAIOS_INSTALL_DIR")
 

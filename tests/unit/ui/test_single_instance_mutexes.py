@@ -19,6 +19,9 @@ from dodaios.ui.shell import single_instance
 from dodaios.ui.shell.single_instance import SingleInstance
 from tests.fakes.fake_win32_mutex import FakeNamedMutexes
 
+if not LEGACY_WINDOWS_MUTEX_NAMES:
+    pytest.skip('JMXS has no earlier mutex names: it runs beside Dodaios, never as its secondary', allow_module_level=True)
+
 _LEGACY = LEGACY_WINDOWS_MUTEX_NAMES[0]
 
 

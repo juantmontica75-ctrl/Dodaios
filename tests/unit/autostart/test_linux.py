@@ -14,6 +14,13 @@ from dodaios.core.branding import (
 )
 from dodaios.core.desktop_entry import escape_value, exec_value
 
+# JMXS keeps no earlier names (dodaios/core/branding.py): the tests that
+# exercise adopting one have nothing to adopt.
+_NEEDS_EARLIER_NAMES = pytest.mark.skipif(
+    not (LEGACY_LINUX_DESKTOP_ENTRY_FILE_NAMES),
+    reason='JMXS has no earlier names: nothing of another product is adopted',
+)
+
 
 def _spec(
     program: str = "/usr/bin/python3",
@@ -320,7 +327,7 @@ def test_uninstall_cleans_up_leftover_temp_debris(monkeypatch, tmp_path: Path) -
 
 # ---- The entry under its earlier name ---------------------------------------
 
-_LEGACY_NAME = LEGACY_LINUX_DESKTOP_ENTRY_FILE_NAMES[0]
+_LEGACY_NAME = (LEGACY_LINUX_DESKTOP_ENTRY_FILE_NAMES or ("",))[0]
 
 
 def _write_legacy(tmp_path: Path, spec: LaunchSpec, *, extra: str = "") -> Path:
@@ -341,11 +348,13 @@ def _write_legacy(tmp_path: Path, spec: LaunchSpec, *, extra: str = "") -> Path:
     return entry
 
 
+@_NEEDS_EARLIER_NAMES
 def test_the_entry_names_follow_the_branding() -> None:
     assert LINUX_DESKTOP_ENTRY_FILE_NAME == "dodaios.desktop"
     assert _LEGACY_NAME == "personal-jarvis.desktop"
 
 
+@_NEEDS_EARLIER_NAMES
 def test_an_earlier_named_entry_that_starts_this_install_counts_as_current(
     monkeypatch, tmp_path: Path
 ) -> None:
@@ -362,6 +371,7 @@ def test_an_earlier_named_entry_that_starts_this_install_counts_as_current(
     assert not (tmp_path / "autostart" / LINUX_DESKTOP_ENTRY_FILE_NAME).exists()
 
 
+@_NEEDS_EARLIER_NAMES
 def test_an_earlier_named_entry_with_an_old_command_is_stale_and_replaced(
     monkeypatch, tmp_path: Path
 ) -> None:
@@ -383,6 +393,7 @@ def test_an_earlier_named_entry_with_an_old_command_is_stale_and_replaced(
     assert not legacy.exists()
 
 
+@_NEEDS_EARLIER_NAMES
 def test_writing_the_entry_removes_the_earlier_one_of_this_install(
     monkeypatch, tmp_path: Path
 ) -> None:
@@ -397,6 +408,7 @@ def test_writing_the_entry_removes_the_earlier_one_of_this_install(
     assert "StartupWMClass=dodaios" in text
 
 
+@_NEEDS_EARLIER_NAMES
 def test_an_earlier_named_entry_of_another_install_is_never_touched(
     monkeypatch, tmp_path: Path
 ) -> None:
@@ -414,6 +426,7 @@ def test_an_earlier_named_entry_of_another_install_is_never_touched(
     assert other.exists()
 
 
+@_NEEDS_EARLIER_NAMES
 def test_both_entries_of_one_install_are_not_current(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     mgr = LinuxAutostart()
@@ -428,6 +441,7 @@ def test_both_entries_of_one_install_are_not_current(monkeypatch, tmp_path: Path
     assert not legacy.exists()
 
 
+@_NEEDS_EARLIER_NAMES
 def test_uninstall_removes_the_earlier_named_entry_of_this_install(
     monkeypatch, tmp_path: Path
 ) -> None:

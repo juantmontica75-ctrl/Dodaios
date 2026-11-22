@@ -19,6 +19,13 @@ from dodaios.core.branding import (
 from dodaios.setup import desktop_integration as di
 from tests.fakes.fake_windows_shortcuts import FakeShortcuts
 
+# JMXS keeps no earlier names (dodaios/core/branding.py): the tests that
+# exercise adopting one have nothing to adopt.
+_NEEDS_EARLIER_NAMES = pytest.mark.skipif(
+    not (LEGACY_LINUX_DESKTOP_ENTRY_FILE_NAMES and LEGACY_WINDOWS_BRANDED_LAUNCHER_FILE_NAMES and LEGACY_WINDOWS_SHORTCUT_FILE_NAMES),
+    reason='JMXS has no earlier names: nothing of another product is adopted',
+)
+
 
 def _managed_root(tmp_path: Path) -> Path:
     root = tmp_path / "install with spaces"
@@ -209,6 +216,7 @@ def _earlier_linux_entry(apps: Path, working_dir: Path | str, name: str | None =
     return entry
 
 
+@_NEEDS_EARLIER_NAMES
 def test_linux_registration_retires_the_earlier_entry_of_this_install(tmp_path: Path) -> None:
     from dodaios.core.config import PROJECT_ROOT
 
@@ -227,6 +235,7 @@ def test_linux_registration_retires_the_earlier_entry_of_this_install(tmp_path: 
     assert not earlier.exists()
 
 
+@_NEEDS_EARLIER_NAMES
 def test_linux_registration_keeps_an_earlier_entry_of_another_install(tmp_path: Path) -> None:
     root = _managed_root(tmp_path)
     apps = tmp_path / "applications"
@@ -238,6 +247,7 @@ def test_linux_registration_keeps_an_earlier_entry_of_another_install(tmp_path: 
     assert other.is_file()
 
 
+@_NEEDS_EARLIER_NAMES
 def test_linux_uninstall_removes_the_earlier_entry_of_this_install(tmp_path: Path) -> None:
     from dodaios.core.config import PROJECT_ROOT
 
@@ -463,8 +473,8 @@ def test_frozen_windows_build_does_not_touch_the_installers_shortcut(
 # Launchers under the product's earlier name
 # ---------------------------------------------------------------------------
 
-_OLD = LEGACY_WINDOWS_SHORTCUT_FILE_NAMES[0]
-_OLD_EXE = LEGACY_WINDOWS_BRANDED_LAUNCHER_FILE_NAMES[0]
+_OLD = (LEGACY_WINDOWS_SHORTCUT_FILE_NAMES or ("",))[0]
+_OLD_EXE = (LEGACY_WINDOWS_BRANDED_LAUNCHER_FILE_NAMES or ("",))[0]
 
 
 def _windows_layout(tmp_path: Path) -> tuple[Path, Path, Path, Path]:
@@ -483,6 +493,7 @@ def _shortcuts(launch_target: Path) -> FakeShortcuts:
     return FakeShortcuts(launch_target=launch_target, shortcut_name=WINDOWS_SHORTCUT_FILE_NAME)
 
 
+@_NEEDS_EARLIER_NAMES
 def test_windows_integration_writes_the_new_launcher_and_retires_only_its_own_old_one(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -510,6 +521,7 @@ def test_windows_integration_writes_the_new_launcher_and_retires_only_its_own_ol
     assert foreign_old.exists()
 
 
+@_NEEDS_EARLIER_NAMES
 def test_an_old_launcher_stays_where_no_new_one_could_be_written(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -534,6 +546,7 @@ def test_an_old_launcher_stays_where_no_new_one_could_be_written(
     assert own_old.exists()
 
 
+@_NEEDS_EARLIER_NAMES
 @pytest.mark.parametrize(
     ("target", "retired"),
     [
@@ -599,6 +612,7 @@ def test_the_current_launcher_is_never_taken_for_an_old_one(tmp_path: Path) -> N
     assert shortcuts.read == []
 
 
+@_NEEDS_EARLIER_NAMES
 def test_a_windows_uninstall_retires_its_own_old_launchers_too(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

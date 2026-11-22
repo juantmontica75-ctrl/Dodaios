@@ -26,6 +26,9 @@ from dodaios.core.process_utils import NO_WINDOW_CREATIONFLAGS
 _ROOT = Path(__file__).resolve().parents[3]
 UNINSTALL_SH = _ROOT / "install" / "uninstall.sh"
 CURRENT_ENTRY = branding.LINUX_DESKTOP_ENTRY_FILE_NAME
+if not branding.LEGACY_LINUX_DESKTOP_ENTRY_FILE_NAMES:
+    pytest.skip('JMXS has no earlier Linux desktop entry', allow_module_level=True)
+
 LEGACY_ENTRY = branding.LEGACY_LINUX_DESKTOP_ENTRY_FILE_NAMES[0]
 
 

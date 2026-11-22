@@ -30,6 +30,9 @@ INSTALL_PS1 = REPO / "install" / "install.ps1"
 BLOCK_BEGIN = "# --- retarget-legacy-origin begin"
 BLOCK_END = "# --- retarget-legacy-origin end"
 
+if not LEGACY_OFFICIAL_REPO_SLUGS:
+    pytest.skip('JMXS never adopts or retargets an upstream checkout', allow_module_level=True)
+
 LEGACY_SLUG = LEGACY_OFFICIAL_REPO_SLUGS[0]
 LEGACY_URL = f"https://github.com/{LEGACY_SLUG}.git"
 CURRENT_URL = f"https://github.com/{DEFAULT_OFFICIAL_REPO_SLUG}.git"

@@ -28,6 +28,9 @@ from dodaios.core.branding import (
 from dodaios.setup import update_rollback
 from dodaios.setup.macos_app_bundle import rename_legacy_macos_app_bundles
 
+if not LEGACY_MACOS_APP_DIR_NAMES:
+    pytest.skip('JMXS has no earlier macOS bundle name to rename', allow_module_level=True)
+
 EARLIER = LEGACY_MACOS_APP_DIR_NAMES[0]
 
 

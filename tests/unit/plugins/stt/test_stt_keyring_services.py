@@ -20,6 +20,9 @@ from tests.fakes.fake_keychain_vault import FakePerItemKeychain, FakeSecurityCli
 from tests.fakes.fake_platform_keyring import FakePlatformKeyring
 
 CURRENT = branding.KEYRING_SERVICE_NAME
+if not branding.LEGACY_KEYRING_SERVICE_NAMES:
+    pytest.skip('JMXS reads no earlier credential service', allow_module_level=True)
+
 LEGACY = branding.LEGACY_KEYRING_SERVICE_NAMES[0]
 PLUGINS = [
     pytest.param(groq_api, "groq_api_key", "GROQ_API_KEY", id="groq"),
