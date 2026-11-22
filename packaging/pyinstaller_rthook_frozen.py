@@ -53,22 +53,20 @@ import sys
 from pathlib import Path
 
 # Mirror dodaios.core.branding (tests/unit/core/test_identity_single_source.py).
-_WINDOWS_USER_DATA_DIR_NAME = "Dodaios"
-_LEGACY_WINDOWS_USER_DATA_DIR_NAMES = ("Jarvis",)
-_FALLBACK_USER_DATA_DIR_NAME = ".dodaios-data"
-_LEGACY_FALLBACK_USER_DATA_DIR_NAMES = (".jarvis",)
-_CONFIG_FILE_NAME = "dodaios.toml"
-_LEGACY_CONFIG_FILE_NAMES = ("jarvis.toml",)
+_WINDOWS_USER_DATA_DIR_NAME = "JMXS"
+_LEGACY_WINDOWS_USER_DATA_DIR_NAMES: tuple[str, ...] = ()
+_FALLBACK_USER_DATA_DIR_NAME = ".jmxs-data"
+_LEGACY_FALLBACK_USER_DATA_DIR_NAMES: tuple[str, ...] = ()
+_CONFIG_FILE_NAME = "jmxs.toml"
+_LEGACY_CONFIG_FILE_NAMES: tuple[str, ...] = ()
 # The executables that are the desktop app itself (dodaios.spec GUI_EXE_NAME and
 # LEGACY_GUI_EXE_NAMES). Only one of them migrates the data directory.
-_GUI_EXE_NAMES = ("DodaiosApp", "PersonalJarvis")
+_GUI_EXE_NAMES = ("JMXSApp",)
 # Single-instance mutexes of a running desktop app, every instance and every
 # name (dodaios.core.identity_boot.primary_mutex_names).
 _MUTEX_NAMES = (
-    "Global\\Dodaios_v1",
-    "Global\\Dodaios_v1_dev",
-    "Global\\PersonalJarvis_v1",
-    "Global\\PersonalJarvis_v1_dev",
+    "Global\\JMXS_v1",
+    "Global\\JMXS_v1_dev",
 )
 # Lock files a running primary holds in the data directory
 # (dodaios.core.identity_boot.PRIMARY_LOCK_FILES).

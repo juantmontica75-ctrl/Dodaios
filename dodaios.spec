@@ -1,4 +1,4 @@
-# PyInstaller spec for the natively installed Personal Jarvis desktop app.
+# PyInstaller spec for the natively installed JMXS desktop app.
 #
 # Strategy:
 # - `onedir` instead of `onefile` avoids 3-5 seconds of MEIPASS extraction and
@@ -49,27 +49,25 @@ ICON_DIR = PROJECT_ROOT / "assets" / "icons"
 # the release contract address the bundle as `dist/Jarvis/`.
 BUNDLE_DIR_NAME = "Jarvis"
 # Windowed launcher; see the header note on the case-collision.
-GUI_EXE_NAME = "DodaiosApp"
-# The windowed launcher under its earlier name, built from the same program:
-# a pinned taskbar button, a logon task or a shortcut of an earlier release
-# starts `{app}\PersonalJarvis.exe`, and must keep finding it.
-LEGACY_GUI_EXE_NAMES = ("PersonalJarvis",)
+GUI_EXE_NAME = "JMXSApp"
+# JMXS has no earlier launcher name: it never ships an executable another
+# product's pins, logon tasks or shortcuts could start.
+LEGACY_GUI_EXE_NAMES: tuple[str, ...] = ()
 # Console entry point. Same name as the pip console script on purpose.
-CLI_EXE_NAME = "dodaios"
-# The console entry point under its earlier name, built from the same program.
+CLI_EXE_NAME = "jmxs"
+# No earlier console name: `dodaios` / `jarvis` belong to a Dodaios install.
 # No name here may equal a GUI name ignoring case: they share one folder.
-LEGACY_CLI_EXE_NAMES = ("jarvis",)
+LEGACY_CLI_EXE_NAMES: tuple[str, ...] = ()
 
 # The Python distribution this tree is installed as, current name first
-# (dodaios.core.branding.DISTRIBUTION_NAMES). An environment set up before the
-# rename still carries the earlier one.
-DISTRIBUTION_NAMES = ('dodaios', 'personal-jarvis')
+# (dodaios.core.branding.DISTRIBUTION_NAMES).
+DISTRIBUTION_NAMES = ('jmxs',)
 
 # The bundle name (``dodaios.core.branding.MACOS_APP_DIR_NAME``). Its bundle id
 # below did not move with it: the privacy grants of every installed copy name
 # that id, and the in-app updater installs a renamed bundle beside the old one.
-MACOS_APP_NAME = "Dodaios.app"
-MACOS_BUNDLE_IDENTIFIER = "ai.personaljarvis.desktop"
+MACOS_APP_NAME = "JMXS.app"
+MACOS_BUNDLE_IDENTIFIER = "ai.jmxsdesktop.desktop"
 MACOS_MIN_SYSTEM_VERSION = "12.0"
 
 
@@ -147,8 +145,7 @@ if FRONTEND_DIST.exists():
             datas.append((str(entry), str(Path("dodaios/ui/web/dist") / rel)))
 
 # Include the default configuration a fresh install is seeded from. The runtime
-# hook copies it to the per-user app directory on first launch (as dodaios.toml
-# when that directory has no jarvis.toml of its own); the frozen app never reads
+# hook copies it to the per-user app directory on first launch (as jmxs.toml); the frozen app never reads
 # or writes the copy inside the bundle.
 datas.append((str(PROJECT_ROOT / "jarvis.toml"), "."))
 datas.append((str(PROJECT_ROOT / "docs" / "product"), "docs/product"))
