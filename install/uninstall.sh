@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
-# Personal Jarvis — macOS / Linux uninstaller
+# JMXS — macOS / Linux uninstaller
 #
-# Usage (from any POSIX shell), on a machine where Jarvis is installed:
-#   bash ~/.dodaios/install/uninstall.sh
-#   bash ~/.dodaios/install/uninstall.sh --dry-run   # preview only
-#   bash ~/.dodaios/install/uninstall.sh --yes       # no prompt
-# (an install never moved from its earlier name lives in ~/.personal-jarvis)
+# Usage (from any POSIX shell), on a machine where JMXS is installed:
+#   bash ~/.jmxs/install/uninstall.sh
+#   bash ~/.jmxs/install/uninstall.sh --dry-run   # preview only
+#   bash ~/.jmxs/install/uninstall.sh --yes       # no prompt
 #
 # It removes four things a plain folder-delete would miss:
-#   1. the install folder (~/.dodaios, or ~/.personal-jarvis before the rename;
-#      a link left at the earlier name is removed as a link, never followed)
+#   1. the install folder (~/.jmxs; a link to it is removed as a link,
+#      never followed)
 #   2. the macOS app bundle or Linux application-menu entry
 #   3. the login-autostart entry (~/.config/autostart or ~/Library/LaunchAgents)
-#   4. the API keys saved in the OS keychain (service "dodaios", and
-#      "personal-jarvis" from before the rename)
+#   4. the API keys saved in the OS keychain (service "jmxs"; a Dodaios
+#      install's keys are never touched)
 #
 # Heavy logic lives in `python -m dodaios --uninstall` (cross-platform, tested).
 # This bootstrap runs that for the autostart + keys (it asks for confirmation),
@@ -23,22 +22,24 @@ set -euo pipefail
 
 # Standalone fallback projections of dodaios/core/branding.py. These remain
 # available even when a broken venv prevents importing the installed package.
-DEFAULT_INSTALL_DIR_NAME=".dodaios"
-LEGACY_INSTALL_DIR_NAME=".personal-jarvis"
-MACOS_APP_DIR_NAME="Dodaios.app"
-LEGACY_MACOS_APP_DIR_NAME="Personal Jarvis.app"
-MACOS_BUNDLE_ID="com.personal-jarvis.desktop"
-MACOS_AUTOSTART_LABEL="com.personal-jarvis.autostart"
-LINUX_DESKTOP_ENTRY_FILE_NAME="dodaios.desktop"
-LEGACY_LINUX_DESKTOP_ENTRY_FILE_NAMES="personal-jarvis.desktop"
-KEYRING_SERVICE_NAME="dodaios"
-LEGACY_KEYRING_SERVICE_NAMES="personal-jarvis"
+DEFAULT_INSTALL_DIR_NAME=".jmxs"
+MACOS_APP_DIR_NAME="JMXS.app"
+MACOS_BUNDLE_ID="com.jmxs-desktop.desktop"
+MACOS_AUTOSTART_LABEL="com.jmxs-desktop.autostart"
+LINUX_DESKTOP_ENTRY_FILE_NAME="jmxs.desktop"
+KEYRING_SERVICE_NAME="jmxs"
+# JMXS has no earlier names: it never removes what a JMXS install owns.
+# Each "legacy" name below is an alias of the current one and must NEVER be
+# empty: "$HOME/$LEGACY_INSTALL_DIR_NAME" would then be the home directory and
+# "$apps_dir/$LEGACY_MACOS_APP_DIR_NAME" the Applications folder.
+LEGACY_INSTALL_DIR_NAME="$DEFAULT_INSTALL_DIR_NAME"
+LEGACY_MACOS_APP_DIR_NAME="$MACOS_APP_DIR_NAME"
+LEGACY_LINUX_DESKTOP_ENTRY_FILE_NAMES=""
 
 # --- uninstall-dir begin (extracted by tests/unit/install/test_install_dir_move.py)
-# DODAIOS_INSTALL_DIR and JARVIS_INSTALL_DIR are one option; the new name wins.
-# Without either: the folder under its earlier name while that is a real
-# directory (an install that was never moved), else the current one.
-INSTALL_DIR="${DODAIOS_INSTALL_DIR:-${JARVIS_INSTALL_DIR:-}}"
+# JMXS_INSTALL_DIR overrides the folder. DODAIOS_INSTALL_DIR / JARVIS_INSTALL_DIR
+# are deliberately ignored: they name a JMXS install.
+INSTALL_DIR="${JMXS_INSTALL_DIR:-}"
 if [ -z "$INSTALL_DIR" ]; then
     if [ -d "$HOME/$LEGACY_INSTALL_DIR_NAME" ] && [ ! -L "$HOME/$LEGACY_INSTALL_DIR_NAME" ]; then
         INSTALL_DIR="$HOME/$LEGACY_INSTALL_DIR_NAME"
@@ -115,7 +116,7 @@ stop_running_instances() {
         sleep 1
     fi
     n=$(echo "$pids" | wc -w | tr -d ' ')
-    ok "Stopped the running Dodaios app ($n process(es))."
+    ok "Stopped the running JMXS app ($n process(es))."
 }
 
 # Remove the install folder, never through a link. A link (the one given, or
@@ -141,7 +142,7 @@ remove_install_dir() {
     done
     if [ -L "$real_dir" ] || ! rm -rf -- "$real_dir"; then
         err "Could not fully remove $real_dir — something is still using files inside it."
-        note 'Close every Dodaios window, then run this uninstaller again.'
+        note 'Close every JMXS window, then run this uninstaller again.'
         exit 3
     fi
     # --- uninstall-remove end
@@ -175,7 +176,7 @@ remove_linux_entries_of_install() {
     # --- uninstall-linux-entries end
 }
 
-step 'Uninstall Dodaios'
+step 'Uninstall JMXS'
 note "$INSTALL_DIR"
 
 # Is this a dry run? Then never touch the folder. --yes/-y skips every prompt
@@ -240,7 +241,7 @@ else
 fi
 
 # Map the Python step's exit code HONESTLY. It returns 1 when the user
-# declines at its prompt and 2 when the folder is not a Jarvis install - it
+# declines at its prompt and 2 when the folder is not a JMXS install - it
 # printed the reason itself in both cases. ANY OTHER code means it CRASHED,
 # most often a venv whose interpreter stopped resolving after a system Python
 # upgrade (on macOS/Homebrew: "dyld: Library not loaded: @rpath/Python3...").
@@ -256,10 +257,9 @@ elif [ "$RC" -ne 0 ]; then
     err "The cleanup step failed (exit $RC) — nothing was changed."
     note 'Its own error is printed above. On macOS the usual cause is a venv'
     note 'broken by a system/Homebrew Python upgrade.'
-    note 'To remove Dodaios anyway:'
+    note 'To remove JMXS anyway:'
     note "  rm -rf \"$INSTALL_DIR\""
-    note "Saved API keys then stay in your OS keychain under \"$KEYRING_SERVICE_NAME\""
-    note "and \"$LEGACY_KEYRING_SERVICE_NAMES\"."
+    note "Saved API keys then stay in your OS keychain under \"$KEYRING_SERVICE_NAME\"."
     exit "$RC"
 fi
 
@@ -270,5 +270,5 @@ if [ "$DRY_RUN" -eq 0 ]; then
     cd "$HOME"
     remove_install_dir "$INSTALL_DIR"
     ok "Removed $INSTALL_DIR"
-    step 'Done. Dodaios has been uninstalled.'
+    step 'Done. JMXS has been uninstalled.'
 fi

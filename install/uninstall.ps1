@@ -1,18 +1,17 @@
-# Personal Jarvis - Windows uninstaller
+# JMXS - Windows uninstaller
 #
-# Usage (from PowerShell), on a machine where Jarvis is installed:
-#   & "$env:USERPROFILE\.dodaios\install\uninstall.ps1"
-#   & "$env:USERPROFILE\.dodaios\install\uninstall.ps1" --dry-run   # preview
-#   & "$env:USERPROFILE\.dodaios\install\uninstall.ps1" --yes       # no prompt
-# (an install never moved from its earlier name lives in ~\.personal-jarvis)
+# Usage (from PowerShell), on a machine where JMXS is installed:
+#   & "$env:USERPROFILE\.jmxs\install\uninstall.ps1"
+#   & "$env:USERPROFILE\.jmxs\install\uninstall.ps1" --dry-run   # preview
+#   & "$env:USERPROFILE\.jmxs\install\uninstall.ps1" --yes       # no prompt
 #
 # It removes four things a plain folder-delete would miss:
-#   1. the install folder (~\.dodaios, or ~\.personal-jarvis before the rename;
+#   1. the install folder (~\.jmxs; a link to it is removed as a link,
 #      a junction left at the earlier name is removed as a link, never followed)
 #   2. the Start-menu launcher and Installed Apps registration
 #   3. the login-autostart entry (a logon scheduled task / Startup shortcut)
 #   4. the API keys saved in the OS keychain (Windows Credential Manager, service
-#      "dodaios", and "personal-jarvis" from before the rename)
+#      "jmxs"; a Dodaios install's keys are never touched)
 #
 # Heavy logic lives in `python -m dodaios --uninstall` (cross-platform, tested).
 # This bootstrap runs that for the autostart + keys (it asks for confirmation),
@@ -57,18 +56,20 @@ function Stop-JarvisProcesses([string]$Root) {
     foreach ($p in $Procs) {
         try { Wait-Process -Id $p.Id -Timeout 10 -ErrorAction SilentlyContinue } catch {}
     }
-    Write-Ok "Stopped the running Dodaios app ($($Procs.Count) process(es))."
+    Write-Ok "Stopped the running JMXS app ($($Procs.Count) process(es))."
 }
 
 # Standalone fallback projections of dodaios/core/branding.py. These remain
 # available even when a broken venv prevents importing the installed package.
-$DefaultInstallDirName = '.dodaios'
-$LegacyInstallDirName = '.personal-jarvis'
-$WindowsShortcutFileName = 'Dodaios.lnk'
-# Earlier names of the shortcut. Removed only where they start this install.
-$LegacyWindowsShortcutFileNames = @('Personal Jarvis.lnk')
-$WindowsUninstallRegistrySubkey = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\PersonalJarvis'
-$WindowsAppUserModelId = 'PersonalJarvis.PersonalJarvis'
+$DefaultInstallDirName = '.jmxs'
+# JMXS has no earlier names: it never removes what a JMXS install owns. The
+# "legacy" folder name is an alias of the current one and must NEVER be empty:
+# Join-Path $env:USERPROFILE '' would be the whole user profile.
+$LegacyInstallDirName = $DefaultInstallDirName
+$WindowsShortcutFileName = 'JMXS.lnk'
+$LegacyWindowsShortcutFileNames = @()
+$WindowsUninstallRegistrySubkey = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\JMXSDesktop'
+$WindowsAppUserModelId = 'JMXSDesktop.JMXSDesktop'
 
 # --- uninstall-dir begin (extracted by tests/unit/install/test_install_dir_move.py)
 # The folder a junction or directory symlink at $Path leads to, or $null when
@@ -91,19 +92,19 @@ function Get-DirectoryLinkTarget([string]$Path) {
     return [IO.Path]::GetFullPath($Target).TrimEnd('\')
 }
 
-# DODAIOS_INSTALL_DIR and JARVIS_INSTALL_DIR are one option; the new name wins.
+# JMXS_INSTALL_DIR overrides the folder; the JMXS variables are ignored.
 # Without either: the folder under its earlier name while that is a real
 # directory (an install that was never moved), else the current one.
 $LegacyInstallDir = Join-Path $env:USERPROFILE $LegacyInstallDirName
 $CurrentInstallDir = Join-Path $env:USERPROFILE $DefaultInstallDirName
-$InstallDir = if ($env:DODAIOS_INSTALL_DIR) { $env:DODAIOS_INSTALL_DIR } elseif ($env:JARVIS_INSTALL_DIR) { $env:JARVIS_INSTALL_DIR } elseif ((Test-Path -LiteralPath $LegacyInstallDir -PathType Container) -and -not (Get-DirectoryLinkTarget $LegacyInstallDir)) { $LegacyInstallDir } else { $CurrentInstallDir }
+$InstallDir = if ($env:JMXS_INSTALL_DIR) { $env:JMXS_INSTALL_DIR } elseif ((Test-Path -LiteralPath $LegacyInstallDir -PathType Container) -and -not (Get-DirectoryLinkTarget $LegacyInstallDir)) { $LegacyInstallDir } else { $CurrentInstallDir }
 # What is deleted is the folder itself, never a link to it.
 $RealInstallDir = Get-DirectoryLinkTarget $InstallDir
 if (-not $RealInstallDir) { $RealInstallDir = [IO.Path]::GetFullPath($InstallDir).TrimEnd('\') }
 # --- uninstall-dir end
 $VenvPython = Join-Path $InstallDir '.venv\Scripts\python.exe'
 
-Write-Step 'Uninstall Dodaios'
+Write-Step 'Uninstall JMXS'
 Write-Note $InstallDir
 
 $DryRun    = $args -contains '--dry-run'
@@ -215,7 +216,7 @@ if (-not $DryRun) {
     }
     if (-not $Deleted -and (Test-Path -LiteralPath $RealInstallDir)) {
         Write-Err "Could not fully remove $RealInstallDir - a program is still using files inside it."
-        Write-Note 'Close every Dodaios window (including the tray icon near the clock) and any terminal opened inside that folder, then run this uninstaller again.'
+        Write-Note 'Close every JMXS window (including the tray icon near the clock) and any terminal opened inside that folder, then run this uninstaller again.'
         Write-Note 'Signing out of Windows and back in also releases leftover file locks.'
         exit 3
     }
@@ -233,7 +234,7 @@ if (-not $DryRun) {
     # The private Python and Git copies install.ps1 fetched on a machine that
     # had neither. Only the venv just deleted used them.
     if ($env:LOCALAPPDATA) {
-        $BundledTools = Join-Path $env:LOCALAPPDATA 'Dodaios\tools'
+        $BundledTools = Join-Path $env:LOCALAPPDATA 'JMXS\tools'
         if (Test-Path -LiteralPath $BundledTools) {
             try {
                 Remove-Item -LiteralPath $BundledTools -Recurse -Force -ErrorAction Stop
@@ -243,5 +244,5 @@ if (-not $DryRun) {
             }
         }
     }
-    Write-Step 'Done. Dodaios has been uninstalled.'
+    Write-Step 'Done. JMXS has been uninstalled.'
 }
