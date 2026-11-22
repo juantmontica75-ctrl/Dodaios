@@ -80,7 +80,7 @@ class UpdateContract:
     #: Name of the user's config file in the checkout root, as an updater from
     #: before ``config_files`` reads it. That updater only reads the admin port
     #: from it, so the earlier name it can still find is the one stated.
-    config_file: str = LEGACY_CONFIG_FILE_NAMES[0]
+    config_file: str = (*LEGACY_CONFIG_FILE_NAMES, CONFIG_FILE_NAME)[0]
     #: Every name the config file may have in the checkout root, in order of
     #: precedence: the first that exists is the configuration. A file is never
     #: renamed, so an installation keeps its ``jarvis.toml`` and a new one has

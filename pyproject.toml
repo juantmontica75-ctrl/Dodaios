@@ -8,12 +8,12 @@ requires = ["setuptools>=84.1.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-# Releases also publish "personal-jarvis", the earlier name, as a thin package
-# that depends on this one at the same version and re-declares its extras and
-# [project.scripts] (scripts/ci/build_distributions.py).
-name = "dodaios"
+# JMXS: an independent fork of Dodaios. The import package stays ``dodaios``;
+# the distribution, commands and every install identifier are JMXS's own
+# (dodaios/core/branding.py).
+name = "jmxs"
 version = "5.6.0"
-description = "All your coding agents in one chat. Open source, installed on your own machine."
+description = "JMXS — all your coding agents in one chat, routed through your own OmniRoute gateway. Based on Dodaios."
 requires-python = ">=3.11,<3.15"
 readme = "README.md"
 # Apache-2.0 from 2.0.0 on. Releases up to 1.6.0 shipped MIT and stay MIT —
@@ -516,25 +516,18 @@ tts-eval = [
 ]
 
 [project.scripts]
-# `dodaios` starts the app (and `dodaios update` updates it). The names below it
-# are the command's earlier names: the same entry point, kept so that scripts,
-# shell history and other tools that call them keep working.
+# `jmxs` starts the app (and `jmxs update` updates it). JMXS installs none of
+# Dodaios's command names (`dodaios`, `jarvis`, `dodaiosctl`, ...): those belong
+# to a Dodaios install that may live beside this one.
 # Never add a command that spells the branded launcher ignoring case (a
-# `dodaiosapp` or `personaljarvis` alias): Windows paths ignore case, and the
-# venv's Scripts folder holds `DodaiosApp.exe` (and `PersonalJarvis.exe` from
-# earlier releases).
-dodaios = "dodaios.__main__:main"
-jarvis = "dodaios.__main__:main"
-personal-jarvis = "dodaios.__main__:main"
-# Phase 8.5 — Review-Pipeline-Run-GC (Plan §6.5).
-jarvis-review-gc = "dodaios.cli.review_gc:main"
-# Phase 8.6 — Review-Pipeline-Eval-Harness (Plan §6.6).
-jarvis-review-eval = "dodaios.cli.review_eval:main"
-# dodaiosctl — control CLI for a running Dodaios instance. `jarvisctl` and
-# `jctl` are its earlier names and stay.
-dodaiosctl = "dodaios.cli_ctl.__main__:main"
-jarvisctl = "dodaios.cli_ctl.__main__:main"
-jctl = "dodaios.cli_ctl.__main__:main"
+# `jmxsapp` alias): Windows paths ignore case, and the venv's Scripts folder
+# holds `JMXSApp.exe`.
+jmxs = "dodaios.__main__:main"
+# Review-pipeline maintenance tools.
+jmxs-review-gc = "dodaios.cli.review_gc:main"
+jmxs-review-eval = "dodaios.cli.review_eval:main"
+# jmxsctl — control CLI for a running JMXS instance.
+jmxsctl = "dodaios.cli_ctl.__main__:main"
 # jmxs-gateway — connect to an OmniRoute gateway (URL, key, model) from a terminal.
 jmxs-gateway = "dodaios.plugins.brain.omniroute_cli:main"
 

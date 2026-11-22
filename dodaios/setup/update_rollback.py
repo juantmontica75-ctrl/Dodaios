@@ -77,7 +77,7 @@ def previous_macos_app_dir_name(
     """
     document = git_show(root, f"{previous}:{CONTRACT_PATH}")
     if document is None:
-        return LEGACY_MACOS_APP_DIR_NAMES[0]
+        return (*LEGACY_MACOS_APP_DIR_NAMES, MACOS_APP_DIR_NAME)[0]
     return parse_update_contract(document).macos_app_dir_name
 
 
