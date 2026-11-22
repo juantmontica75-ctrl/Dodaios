@@ -1,3 +1,13 @@
+> ## JMXS
+>
+> **JMXS is an independent fork of [Dodaios](https://github.com/Dodaios/Dodaios)** with its own identity
+> (name, commands `jmxs` / `jmxsctl` / `jmxs-gateway`, config `jmxs.toml`, install folder `.jmxs`) and
+> **OmniRoute as a built-in model provider** (any
+> OpenAI-compatible gateway, default `http://localhost:20128/v1`). It never touches an existing Dodaios
+> install. Credits, `LICENSE` and `NOTICE` of the upstream project are kept.
+> Start with **[docs/JMXS.md](docs/JMXS.md)**. The sections below are the upstream product description;
+> their installer links point at this fork's installers.
+
 <div align="center">
 <a href="https://dodaios.ai">
   <picture>
@@ -55,13 +65,13 @@ https://github.com/user-attachments/assets/37cdc5a5-30d6-49c8-92ff-3454a075569f
 macOS and Linux:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Dodaios/Dodaios/main/install/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/juantmontica75-ctrl/Dodaios/main/install/install.sh | bash
 ```
 
 Windows, in PowerShell:
 
 ```powershell
-irm https://raw.githubusercontent.com/Dodaios/Dodaios/main/install/install.ps1 | iex
+irm https://raw.githubusercontent.com/juantmontica75-ctrl/Dodaios/main/install/install.ps1 | iex
 ```
 
 The installer sets up its own Python environment, adds a launcher and opens
@@ -84,7 +94,7 @@ Download the installer for your system from the latest release:
 
 | Windows | macOS | Linux |
 | --- | --- | --- |
-| [Dodaios-Setup-x64.exe](https://github.com/Dodaios/Dodaios/releases/latest/download/Dodaios-Setup-x64.exe) | [Apple Silicon](https://github.com/Dodaios/Dodaios/releases/latest/download/Dodaios-macOS-arm64.dmg) · [Intel](https://github.com/Dodaios/Dodaios/releases/latest/download/Dodaios-macOS-x64.dmg) | [AppImage, x86_64](https://github.com/Dodaios/Dodaios/releases/latest/download/Dodaios-Linux-x86_64.AppImage) |
+| [Dodaios-Setup-x64.exe](https://github.com/juantmontica75-ctrl/Dodaios/releases/latest/download/JMXS-Setup-x64.exe) | [Apple Silicon](https://github.com/juantmontica75-ctrl/Dodaios/releases/latest/download/JMXS-macOS-arm64.dmg) · [Intel](https://github.com/juantmontica75-ctrl/Dodaios/releases/latest/download/JMXS-macOS-x64.dmg) | [AppImage, x86_64](https://github.com/juantmontica75-ctrl/Dodaios/releases/latest/download/JMXS-Linux-x86_64.AppImage) |
 
 
 
