@@ -228,6 +228,9 @@ PROVIDER_SECRET_CANDIDATES: dict[str, tuple[tuple[str, str], ...]] = {
         ("litellm_api_key", "LITELLM_API_KEY"),
         ("litellm_master_key", "LITELLM_MASTER_KEY"),
     ),
+    # OmniRoute gateway the user hosts. The key is an OmniRoute endpoint key
+    # (Dashboard -> Endpoints); upstream vendor keys stay inside OmniRoute.
+    "omniroute": (("omniroute_api_key", "OMNIROUTE_API_KEY"),),
     # Groq remains a speech-to-text credential family even though it is not a
     # selectable brain provider.
     "groq": (("groq_api_key", "GROQ_API_KEY"),),
@@ -322,6 +325,10 @@ JARVIS_AGENT_SECRET_CANDIDATES: dict[str, tuple[tuple[str, str], ...]] = {
     "litellm": (
         ("jarvis_agent_litellm_api_key", "JARVIS_AGENT_LITELLM_API_KEY"),
         *PROVIDER_SECRET_CANDIDATES["litellm"],
+    ),
+    "omniroute": (
+        ("jarvis_agent_omniroute_api_key", "JARVIS_AGENT_OMNIROUTE_API_KEY"),
+        *PROVIDER_SECRET_CANDIDATES["omniroute"],
     ),
     "grok": (
         ("jarvis_agent_grok_api_key", "JARVIS_AGENT_GROK_API_KEY"),
@@ -5973,6 +5980,7 @@ _SECRET_BASE_FAMILIES: tuple[str, ...] = (
     "openrouter",
     "deepseek",
     "litellm",
+    "omniroute",
     "groq",
     "nvidia",
     "gemini",

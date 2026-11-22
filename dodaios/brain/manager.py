@@ -338,6 +338,7 @@ PROVIDER_ALIASES = {
     "pro": "gemini",
     "openrouter": "openrouter",
     "litellm": "litellm",
+    "omniroute": "omniroute",
     "deepseek": "deepseek",
     "grok": "grok",
     "nvidia": "nvidia",
@@ -357,6 +358,7 @@ _MAIN_BRAIN_FALLBACK_PROVIDER_ORDER: tuple[str, ...] = (
     "grok",
     "nvidia",
     "litellm",
+    "omniroute",
 )
 
 # Human-readable display names for each brain provider id. Used to tell the
@@ -376,6 +378,7 @@ _PROVIDER_DISPLAY_NAMES: dict[str, str] = {
     "openai-codex": "OpenAI Codex (GPT-5.5)",
     "openrouter": "OpenRouter",
     "litellm": "LiteLLM",
+    "omniroute": "OmniRoute",
     "deepseek": "DeepSeek",
     "grok": "xAI Grok",
     "nvidia": "NVIDIA NIM",
@@ -427,6 +430,7 @@ _SECRET_KEY_TO_BRAIN: dict[str, str] = {
     "deepseek_api_key": "deepseek",
     "litellm_api_key": "litellm",
     "litellm_master_key": "litellm",
+    "omniroute_api_key": "omniroute",
     "grok_api_key": "grok",
     "xai_api_key": "grok",
     "nvidia_api_key": "nvidia",
@@ -490,6 +494,8 @@ TIER_DEFAULTS_BY_PROVIDER: dict[str, dict[str, str]] = {
         # Proxy aliases belong to the user's config. Empty means the plugin
         # asks the proxy which model to use.
         "litellm": "",
+        # OmniRoute routes are the user's own: empty = ask the gateway.
+        "omniroute": "",
         # Grok 4.3 is available across regions and supports local tool use.
         "grok": "grok-4.3",
         # NVIDIA NIM router pick: a widely-hosted, tool-capable, low-latency model
@@ -520,6 +526,7 @@ TIER_DEFAULTS_BY_PROVIDER: dict[str, dict[str, str]] = {
         # user (§3/AP-22) — see the router-tier note above.
         "openrouter": "nvidia/nemotron-3-ultra-550b-a55b:free",
         "litellm": "",
+        "omniroute": "",
         "grok": "grok-4.3",
         # NVIDIA NIM deep pick: NVIDIA's own reasoning flagship. 2026-08-09:
         # the Llama-3.1-based Nemotron Ultra gives way to the current
@@ -2144,6 +2151,7 @@ _SUBAGENT_VOICE_TO_CANONICAL: dict[str, str] = {
     "gemini": "gemini",
     "openrouter": "openrouter",
     "litellm": "litellm",
+    "omniroute": "omniroute",
     "grok": "grok",
     "nvidia": "nvidia", "nim": "nvidia", "nemotron": "nvidia",
     "antigravity": "antigravity",
@@ -2155,6 +2163,7 @@ _SUBAGENT_VOICE_TO_CANONICAL: dict[str, str] = {
 _SUBAGENT_DISPLAY: dict[str, str] = {
     "openai": "OpenAI", "openai-codex": "Codex", "claude-api": "Claude",
     "gemini": "Gemini", "openrouter": "OpenRouter", "litellm": "LiteLLM", "grok": "xAI Grok",
+    "omniroute": "OmniRoute",
     "nvidia": "NVIDIA NIM",
     "antigravity": "Antigravity",
     "grok-build": "Grok Build",
@@ -3146,6 +3155,7 @@ class BrainManager:
             "grok",
             "nvidia",
             "litellm",
+            "omniroute",
             *self._registry.available(),
         ]
         seen: set[str] = set()
@@ -10186,7 +10196,7 @@ class BrainManager:
         db = self._config.brain.deep_brain
         if db:
             order.append(db)
-        order += ["gemini", "claude-api", "openai", "openrouter", "grok", "nvidia", "litellm"]
+        order += ["gemini", "claude-api", "openai", "openrouter", "grok", "nvidia", "litellm", "omniroute"]
         from dodaios.brain.voice_key import bills_voice_key
 
         # The realtime voice key leads a turn only when no other provider can
@@ -10372,6 +10382,7 @@ class BrainManager:
             "grok",                 # xAI Grok
             "nvidia",               # NVIDIA NIM (free dev tier)
             "litellm",              # user-hosted LiteLLM proxy
+            "omniroute",            # user-hosted OmniRoute gateway
         ]
         for name in cross_order:
             if name == active:
@@ -13996,6 +14007,7 @@ _PROVIDER_SETUP_HINTS: dict[str, str] = {
     "openai": "OPENAI_API_KEY setzen",
     "openrouter": "OPENROUTER_API_KEY setzen",
     "litellm": "Set LITELLM_API_KEY and the proxy server URL",
+    "omniroute": "Run `jmxs-gateway key` (OmniRoute endpoint key) and check the gateway URL",
     "deepseek": "Set DEEPSEEK_API_KEY (key from platform.deepseek.com)",
     "grok": "Set XAI_API_KEY (key from console.x.ai)",
     "nvidia": "Set NVIDIA_API_KEY (nvapi- key from build.nvidia.com)",

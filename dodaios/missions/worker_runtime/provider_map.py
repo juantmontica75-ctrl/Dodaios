@@ -127,6 +127,8 @@ MAPPINGS: Final[tuple[ProviderMapping, ...]] = (
     # the user's server URL, not a worker-harness CLI. The env name is the
     # proxy key the worker hands the brain.
     ProviderMapping("litellm", "litellm", "LITELLM_API_KEY", "LITELLM_MASTER_KEY"),
+    # OmniRoute gateway: in-process ApiAgentWorker, same shape as LiteLLM.
+    ProviderMapping("omniroute", "omniroute", "OMNIROUTE_API_KEY"),
     # Grok runs through the in-process ApiAgentWorker. The xAI worker slug is a
     # stable display/reverse-mapping identity; no external CLI is spawned.
     ProviderMapping("grok", "xai", "XAI_API_KEY", "GROK_API_KEY"),

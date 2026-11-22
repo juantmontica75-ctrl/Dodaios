@@ -535,6 +535,8 @@ jarvis-review-eval = "dodaios.cli.review_eval:main"
 dodaiosctl = "dodaios.cli_ctl.__main__:main"
 jarvisctl = "dodaios.cli_ctl.__main__:main"
 jctl = "dodaios.cli_ctl.__main__:main"
+# jmxs-gateway — connect to an OmniRoute gateway (URL, key, model) from a terminal.
+jmxs-gateway = "dodaios.plugins.brain.omniroute_cli:main"
 
 # Plugin entry points — all slots are already declared.
 # New plugins are discovered without any core changes.
@@ -614,6 +616,9 @@ openrouter = "dodaios.plugins.brain.openrouter:OpenRouterBrain"
 # Self-hosted OpenAI-compatible gateway. The host is the user's proxy
 # ([brain.providers.litellm].base_url), not a vendor URL.
 litellm = "dodaios.plugins.brain.litellm:LiteLLMBrain"
+# Self-hosted OmniRoute gateway (default http://localhost:20128/v1). JMXS's
+# primary gateway: one OmniRoute endpoint key reaches every upstream it routes.
+omniroute = "dodaios.plugins.brain.omniroute:OmniRouteBrain"
 nvidia = "dodaios.plugins.brain.nvidia:NvidiaBrain"
 openai = "dodaios.plugins.brain.openai:OpenAIBrain"
 gemini = "dodaios.plugins.brain.gemini:GeminiBrain"

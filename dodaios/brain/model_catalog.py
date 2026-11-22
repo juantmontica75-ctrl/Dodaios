@@ -57,6 +57,7 @@ _PROVIDER_TTL_CAP_SECONDS: dict[str, float] = {
     "local-openai": 60,
     # The proxy's model list is whatever its config currently serves.
     "litellm": 60,
+    "omniroute": 60,
 }
 
 # The brain providers whose catalogs we can enumerate. Codex is excluded
@@ -75,6 +76,8 @@ CATALOG_PROVIDERS: tuple[str, ...] = (
     # own /models list; there is no curated fallback (the names are aliases
     # the user defined).
     "litellm",
+    # User-hosted OmniRoute gateway: same OpenAI /v1/models roster.
+    "omniroute",
     # Keyless local providers (2026-07-25): their "catalog" is the live list of
     # models the user's own server holds — ollama via the native /api/tags,
     # local-openai via the standard /v1/models.
@@ -131,6 +134,7 @@ _ENDPOINTS: dict[str, _CatalogEndpoint] = {
     # The key is required (the proxy master or a virtual key). The vendor
     # base is the local default; a saved server URL replaces it.
     "litellm": _CatalogEndpoint("http://localhost:4000/v1", "/models", "bearer"),
+    "omniroute": _CatalogEndpoint("http://localhost:20128/v1", "/models", "bearer"),
     # xAI uses the OpenAI-compatible ``data[].id`` model roster and requires
     # the same bearer key used for Grok inference.
     "grok": _CatalogEndpoint("https://api.x.ai/v1", "/models", "bearer"),

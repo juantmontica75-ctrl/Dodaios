@@ -2565,6 +2565,7 @@ _API_CRITIC_PROVIDERS: tuple[str, ...] = (
     "grok",
     "nvidia",
     "litellm",
+    "omniroute",
     "ollama",
     "local-openai",
 )

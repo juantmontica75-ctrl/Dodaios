@@ -24,6 +24,7 @@ from typing import Literal
 _PROVIDER_ALIASES = (
     "claude-api",
     "openrouter",
+    "omniroute",
     "litellm",
     "grok",
     "anthropic",
@@ -199,7 +200,7 @@ _SUBAGENT_QUALIFIER = re.compile(
 )
 # Longer variants first so "openai-codex" wins over "openai".
 _SUBAGENT_PROVIDER_WORDS = (
-    "openai-codex", "openrouter", "litellm", "antigravity", "grok-build", "grok build",
+    "openai-codex", "openrouter", "omniroute", "litellm", "antigravity", "grok-build", "grok build",
     "grokbuild", "grok-cli", "chatgpt", "anthropic", "claude", "gemini",
     "openai", "grok", "codex", "gpt",
 )

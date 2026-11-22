@@ -102,6 +102,7 @@ _BRAIN_BY_PROVIDER: dict[str, tuple[str, str]] = {
     # LiteLLM proxy speaks the same OpenAI-compatible protocol. The host is
     # the user's proxy URL; model names are the proxy's own aliases.
     "litellm": ("dodaios.plugins.brain.litellm", "LiteLLMBrain"),
+    "omniroute": ("dodaios.plugins.brain.omniroute", "OmniRouteBrain"),
     # xAI Grok speaks the same OpenAI-compatible streaming/tool-call protocol
     # and needs no vendor SDK or external worker CLI.
     "grok": ("dodaios.plugins.brain.grok", "GrokBrain"),

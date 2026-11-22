@@ -143,6 +143,14 @@ SECRETS: list[SecretSpec] = [
         section="brain",
     ),
     SecretSpec(
+        key="omniroute_api_key",
+        env_fallback="OMNIROUTE_API_KEY",
+        label="OmniRoute API Key (Dashboard -> Endpoints)",
+        help_url="https://github.com/diegosouzapw/OmniRoute",
+        required_for="Brain (OmniRoute gateway — default http://localhost:20128/v1)",
+        section="brain",
+    ),
+    SecretSpec(
         key="deepseek_api_key",
         env_fallback="DEEPSEEK_API_KEY",
         label="DeepSeek API Key",
@@ -328,6 +336,14 @@ SECRETS: list[SecretSpec] = [
         label="LiteLLM API Key for Dodaios-Agents",
         help_url="https://docs.litellm.ai/docs/proxy/virtual_keys",
         required_for="Dodaios-Agents (LiteLLM proxy)",
+        prompt=False,
+    ),
+    SecretSpec(
+        key="jarvis_agent_omniroute_api_key",
+        env_fallback="JARVIS_AGENT_OMNIROUTE_API_KEY",
+        label="OmniRoute API Key for Dodaios-Agents",
+        help_url="https://github.com/diegosouzapw/OmniRoute",
+        required_for="Dodaios-Agents (OmniRoute gateway)",
         prompt=False,
     ),
     SecretSpec(

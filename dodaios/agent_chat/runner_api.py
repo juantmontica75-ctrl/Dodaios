@@ -59,6 +59,7 @@ BRAIN_BY_PROVIDER: Final[dict[str, tuple[str, str]]] = {
     "openai": ("dodaios.plugins.brain.openai", "OpenAIBrain"),
     "openrouter": ("dodaios.plugins.brain.openrouter", "OpenRouterBrain"),
     "litellm": ("dodaios.plugins.brain.litellm", "LiteLLMBrain"),
+    "omniroute": ("dodaios.plugins.brain.omniroute", "OmniRouteBrain"),
     "grok": ("dodaios.plugins.brain.grok", "GrokBrain"),
     "nvidia": ("dodaios.plugins.brain.nvidia", "NvidiaBrain"),
     "deepseek": ("dodaios.plugins.brain.deepseek", "DeepSeekBrain"),

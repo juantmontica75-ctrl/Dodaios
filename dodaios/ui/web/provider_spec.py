@@ -480,6 +480,23 @@ PROVIDERS: tuple[ProviderSpec, ...] = (
         ),
     ),
     ProviderSpec(
+        id="omniroute",
+        label="OmniRoute",
+        tier="brain",
+        auth_mode="api_key",
+        secret_keys=("omniroute_api_key",),
+        dashboard_url="http://localhost:20128/dashboard",
+        signup_url="https://github.com/diegosouzapw/OmniRoute",
+        supports_base_url=True,
+        default_base_url="http://localhost:20128/v1",
+        credential_help=(
+            "OmniRoute endpoint key (Dashboard -> Endpoints). Set the server URL "
+            "to your gateway (the default is OmniRoute on this machine). One key "
+            "reaches every provider connected inside OmniRoute; upstream keys "
+            "stay in the gateway."
+        ),
+    ),
+    ProviderSpec(
         id="grok",
         label="xAI Grok",
         tier="brain",

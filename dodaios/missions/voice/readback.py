@@ -341,6 +341,7 @@ _PROVIDER_DISPLAY: Final[dict[str, str]] = {
     "grok": "Grok",
     "openrouter": "OpenRouter",
     "litellm": "LiteLLM",
+    "omniroute": "OmniRoute",
     "nvidia": "NVIDIA",
 }
 
