@@ -98,7 +98,7 @@ def test_the_windows_setup_is_built_and_signed_under_one_name() -> None:
     )
     job = workflow["jobs"]["windows"]
     name = job["env"]["SIGNED_SETUP_NAME"]
-    assert name == "Dodaios-Setup-x64.exe"
+    assert name == "JMXS-Setup-x64.exe"
     windows = job["steps"]
     staged = next(s for s in windows if s.get("id") == "signpath-unsigned")
     upload = next(s for s in windows if s.get("name") == "Upload the installer")
@@ -138,8 +138,8 @@ def test_the_names_option_lists_what_the_release_requires(capsys) -> None:
 @pytest.mark.parametrize(
     ("script", "expected"),
     [
-        ("packaging/macos/build.sh", 'DMG_PATH="${OUT_DIR}/Dodaios-macOS-${ARCH_TAG}.dmg"'),
-        ("packaging/linux/build.sh", 'APPIMAGE_PATH="${OUT_DIR}/Dodaios-Linux-x86_64.AppImage"'),
+        ("packaging/macos/build.sh", 'DMG_PATH="${OUT_DIR}/JMXS-macOS-${ARCH_TAG}.dmg"'),
+        ("packaging/linux/build.sh", 'APPIMAGE_PATH="${OUT_DIR}/JMXS-Linux-x86_64.AppImage"'),
     ],
 )
 def test_the_macos_and_linux_builds_produce_the_current_names(script, expected) -> None:

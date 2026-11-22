@@ -45,7 +45,7 @@ from tests.fakes.fake_installer_update import FakeAssetFetcher
 
 ROOT = Path(__file__).resolve().parents[3]
 PAYLOAD = b"an installer stand-in"
-SETUP = "Dodaios-Setup-x64.exe"
+SETUP = "JMXS-Setup-x64.exe"
 CHECKSUMS = f"{hashlib.sha256(PAYLOAD).hexdigest()}  {SETUP}\n".encode()
 
 

@@ -16,10 +16,10 @@ contract - the website's download button and the in-app updater both resolve
 
 | Asset                                  | Platform                                  |
 | -------------------------------------- | ----------------------------------------- |
-| `Dodaios-Setup-x64.exe`                | Windows 10/11 x64, per-user Inno Setup    |
-| `Dodaios-macOS-arm64.dmg`              | Apple Silicon                             |
-| `Dodaios-macOS-x64.dmg`                | Intel Mac                                 |
-| `Dodaios-Linux-x86_64.AppImage`        | Linux x86_64                              |
+| `JMXS-Setup-x64.exe`                | Windows 10/11 x64, per-user Inno Setup    |
+| `JMXS-macOS-arm64.dmg`              | Apple Silicon                             |
+| `JMXS-macOS-x64.dmg`                | Intel Mac                                 |
+| `JMXS-Linux-x86_64.AppImage`        | Linux x86_64                              |
 | `installers-SHA256SUMS.txt`            | what the updater verifies every download against |
 
 Every installer is published a second time, with identical bytes, under its
@@ -100,7 +100,7 @@ All three scripts do the same three things: build the frontend if
 
 ```powershell
 pwsh packaging/windows/build.ps1
-# -> dist/installers/Dodaios-Setup-x64.exe
+# -> dist/installers/JMXS-Setup-x64.exe
 ```
 
 Needs Node 22+, Python 3.12 with `pip install -e ".[desktop,dev]"`, and Inno
@@ -133,7 +133,7 @@ The wizard itself is `packaging/windows/Dodaios.iss`:
 
 ```bash
 ./packaging/macos/build.sh
-# -> dist/installers/Dodaios-macOS-<arm64|x64>.dmg
+# -> dist/installers/JMXS-macOS-<arm64|x64>.dmg
 ```
 
 Owned by `packaging/macos/`. It reads `APPLE_CERTIFICATE_P12_BASE64` and
@@ -202,7 +202,7 @@ own grants.
 
 ```bash
 ./packaging/linux/build.sh
-# -> dist/installers/Dodaios-Linux-x86_64.AppImage
+# -> dist/installers/JMXS-Linux-x86_64.AppImage
 ```
 
 Owned by `packaging/linux/`. Built on the oldest supported runner
@@ -427,9 +427,9 @@ dist/Jarvis/dodaios.exe serve
 curl http://127.0.0.1:<admin_api_port>/api/health
 
 # a full install / upgrade / uninstall cycle, unattended
-Dodaios-Setup-x64.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR="C:\pj-test" /LOG=install.log
+JMXS-Setup-x64.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR="C:\pj-test" /LOG=install.log
 C:\pj-test\dodaios.exe --version
-Dodaios-Setup-x64.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR="C:\pj-test"   # upgrade in place
+JMXS-Setup-x64.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR="C:\pj-test"   # upgrade in place
 C:\pj-test\unins000.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
 ```
 

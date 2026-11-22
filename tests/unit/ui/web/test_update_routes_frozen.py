@@ -692,7 +692,7 @@ def test_apply_downloads_into_a_fresh_private_folder(
 # --------------------------------------------------------------------------- #
 # A release may carry the installer under more than one accepted name
 # --------------------------------------------------------------------------- #
-NEW_SETUP_NAME = "Dodaios-Setup-x64.exe"
+NEW_SETUP_NAME = "JMXS-Setup-x64.exe"
 
 
 def _asset_entry(name: str) -> dict[str, Any]:

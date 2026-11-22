@@ -5,10 +5,10 @@
 # https://github.com/Dodaios/Dodaios/releases/latest/download/<name>,
 # so the asset names below are a contract, not a convention.
 #
-#   Dodaios-Setup-x64.exe          Windows 10/11 x64, per-user Inno wizard
-#   Dodaios-macOS-arm64.dmg        Apple Silicon
-#   Dodaios-macOS-x64.dmg          Intel Mac
-#   Dodaios-Linux-x86_64.AppImage  Linux x86_64
+#   JMXS-Setup-x64.exe          Windows 10/11 x64, per-user Inno wizard
+#   JMXS-macOS-arm64.dmg        Apple Silicon
+#   JMXS-macOS-x64.dmg          Intel Mac
+#   JMXS-Linux-x86_64.AppImage  Linux x86_64
 #   installers-SHA256SUMS.txt      what the updater verifies against
 #   installers-update-manifest.json(.sig)  the release key's signature over
 #                                  the version and that checksum manifest
@@ -125,7 +125,7 @@ jobs:
       # The setup's file name: SignedSetupBaseName in packaging/windows/Dodaios.iss
       # and the path the SignPath artifact configuration pins
       # (docs/code-signing-policy.md). All three change together.
-      SIGNED_SETUP_NAME: Dodaios-Setup-x64.exe
+      SIGNED_SETUP_NAME: JMXS-Setup-x64.exe
     steps:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
@@ -423,7 +423,7 @@ jobs:
         if: github.ref_type == 'tag' && contains(vars.REQUIRE_SIGNED_INSTALLERS, 'macos')
         shell: bash
         env:
-          DMG: dist/installers/Dodaios-macOS-${{ matrix.arch }}.dmg
+          DMG: dist/installers/JMXS-macOS-${{ matrix.arch }}.dmg
         run: |
           set -euo pipefail
           if [ "$HAS_APPLE_SIGNING" != "true" ]; then
@@ -468,7 +468,7 @@ jobs:
           set -euo pipefail
           mount_point="${RUNNER_TEMP}/jarvis-browser-dmg"
           mkdir -p "$mount_point"
-          hdiutil attach "dist/installers/Dodaios-macOS-${{ matrix.arch }}.dmg" -readonly -nobrowse -mountpoint "$mount_point"
+          hdiutil attach "dist/installers/JMXS-macOS-${{ matrix.arch }}.dmg" -readonly -nobrowse -mountpoint "$mount_point"
           # The app the check just quit can hold the volume for a moment;
           # retry, then force, so a busy unmount does not fail a passed check.
           detach() {
@@ -496,7 +496,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: installer-macos-${{ matrix.arch }}
-          path: dist/installers/Dodaios-macOS-${{ matrix.arch }}.dmg
+          path: dist/installers/JMXS-macOS-${{ matrix.arch }}.dmg
           if-no-files-found: error
           retention-days: 14
 
@@ -560,7 +560,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          dist/installers/Dodaios-Linux-x86_64.AppImage --appimage-extract > /dev/null
+          dist/installers/JMXS-Linux-x86_64.AppImage --appimage-extract > /dev/null
           python scripts/ci/check_frozen_browser.py --executable squashfs-root/AppRun --output frozen-browser-proof
 
       - name: Preserve frozen browser evidence
@@ -579,7 +579,7 @@ jobs:
         with:
           name: installer-linux-x86_64
           path: |
-            dist/installers/Dodaios-Linux-x86_64.AppImage
+            dist/installers/JMXS-Linux-x86_64.AppImage
             dist/installers/*_amd64.deb
           if-no-files-found: error
           retention-days: 14

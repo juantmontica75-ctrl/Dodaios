@@ -1,4 +1,4 @@
-; Inno Setup script for the Dodaios Windows installer (formerly Personal Jarvis).
+; Inno Setup script for the JMXS Windows installer (formerly Personal Jarvis).
 ;
 ; Shape of the install, and why:
 ;   * PER-USER (PrivilegesRequired=lowest, {localappdata}\Programs). Exactly how
@@ -12,18 +12,18 @@
 ;     file with /SILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /RELAUNCH=1
 ;     /WAITPID=<pid> /LOG=<file>, so Setup first waits for the old app to exit
 ;     (InitializeSetup), Restart Manager closes anything still holding a file,
-;     the files are replaced, and the second [Run] entry starts Dodaios
+;     the files are replaced, and the second [Run] entry starts JMXS
 ;     again.
 ;     (/RESTARTAPPLICATIONS would only restart apps registered with
 ;     RegisterApplicationRestart, which this one is not.)
 ;   * The uninstaller removes the program directory ONLY. Settings, memory,
-;     skills and logs live in %LOCALAPPDATA%\Dodaios and are deliberately kept, so
+;     skills and logs live in %LOCALAPPDATA%\JMXS and are deliberately kept, so
 ;     an uninstall/reinstall cycle does not destroy the user's data.
 ;   * The product was called Personal Jarvis. An upgrade keeps the install
 ;     directory (Inno reuses it by AppId), names the Start-menu group and the
-;     shortcuts Dodaios, and deletes the shortcuts the earlier name left behind
+;     shortcuts JMXS, and deletes the shortcuts the earlier name left behind
 ;     ([InstallDelete]). The bundle still ships PersonalJarvis.exe beside
-;     DodaiosApp.exe, so a pinned taskbar button or a logon task aimed at the
+;     JMXSApp.exe, so a pinned taskbar button or a logon task aimed at the
 ;     old file keeps working.
 ;
 ; Compile through packaging/windows/build.ps1, which passes the version:
@@ -43,20 +43,20 @@
 #endif
 ; NEVER change this default. It is the identity Windows upgrades against. Only
 ; the installer end-to-end test overrides it (/DAppGuid=...), so its throwaway
-; install can never touch, upgrade or uninstall a real Dodaios install.
+; install can never touch, upgrade or uninstall a real JMXS install.
 #ifndef AppGuid
-  #define AppGuid "7F1C4E42-2E5B-4F0A-9E1B-1A7B6C0D5E88"
+  #define AppGuid "E5C712D2-262B-49DF-BC1D-14B4AEE953C6"
 #endif
 
-#define AppName "Dodaios"
-#define AppPublisher "Dodaios"
-#define AppUrl "https://github.com/Dodaios/Dodaios"
-#define GuiExeName "DodaiosApp.exe"
+#define AppName "JMXS"
+#define AppPublisher "JMXS"
+#define AppUrl "https://github.com/juantmontica75-ctrl/Dodaios"
+#define GuiExeName "JMXSApp.exe"
 ; The windowed launcher's earlier name. The bundle ships it too (dodaios.spec).
-#define LegacyGuiExeName "PersonalJarvis.exe"
+#define LegacyGuiExeName ""
 ; The product's earlier name: the Start-menu group and the shortcuts an
 ; earlier release created are spelled this way.
-#define LegacyAppName "Personal Jarvis"
+#define LegacyAppName ""
 ; The setup's signed identity: the product name in its file properties (and
 ; on a UAC prompt) and its file name. A SignPath artifact configuration pins
 ; both (docs/code-signing-policy.md), so they must always equal its
@@ -64,13 +64,13 @@
 ; (.github/workflows/desktop-installers.yml). The release publishes a
 ; byte-identical PersonalJarvis-Setup-x64.exe next to it for installs from
 ; before the rename (scripts/ci/installer_aliases.py).
-#define SignedProductName "Dodaios"
-#define SignedSetupBaseName "Dodaios-Setup-x64"
-#define CliExeName "dodaios.exe"
+#define SignedProductName "JMXS"
+#define SignedSetupBaseName "JMXS-Setup-x64"
+#define CliExeName "jmxs.exe"
 ; The command's earlier name. The bundle ships it beside CliExeName, in the
 ; same folder the PATH task adds, so both names work in a terminal.
-#define LegacyCliExeName "jarvis.exe"
-#define UserDataDirDisplay "%LOCALAPPDATA%\Dodaios"
+#define LegacyCliExeName ""
+#define UserDataDirDisplay "%LOCALAPPDATA%\JMXS"
 
 [Setup]
 ; NEVER change AppGuid's default (see its #define above).
@@ -126,19 +126,13 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: "addtopath"; Description: "Add the ""dodaios"" command to PATH (lets you run ""dodaios serve"" in any terminal)"; GroupDescription: "Command line"
+Name: "addtopath"; Description: "Add the ""jmxs"" command to PATH (lets you run ""jmxs serve"" in any terminal)"; GroupDescription: "Command line"
 
 [Files]
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [InstallDelete]
-; The Start-menu group and the Desktop shortcut of the earlier product name.
-; The group's own shortcuts are this installer's; the Desktop one is removed
-; only when it starts this installation, never a shortcut of another install.
-Type: files; Name: "{autoprograms}\{#LegacyAppName}\{#LegacyAppName}.lnk"
-Type: files; Name: "{autoprograms}\{#LegacyAppName}\Uninstall {#LegacyAppName}.lnk"
-Type: dirifempty; Name: "{autoprograms}\{#LegacyAppName}"
-Type: files; Name: "{userdesktop}\{#LegacyAppName}.lnk"; Check: LegacyShortcutStartsThisApp('{userdesktop}\{#LegacyAppName}.lnk')
+; JMXS has no earlier product name, so there are no earlier shortcuts to remove.
 
 [Icons]
 Name: "{group}\{#AppName}"; Filename: "{app}\{#GuiExeName}"; WorkingDir: "{app}"

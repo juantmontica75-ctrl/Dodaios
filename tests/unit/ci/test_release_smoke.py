@@ -29,10 +29,10 @@ class FakePublishedRelease:
 
     def __init__(self, *, attested=0, attestation_ok=True, draft=False, outages=0):
         self.payloads = {
-            "Dodaios-Linux-x86_64.AppImage": b"appimage",
+            "JMXS-Linux-x86_64.AppImage": b"appimage",
             "PersonalJarvis-Linux-x86_64.AppImage": b"appimage",
             "personal-jarvis_1.2.3_amd64.deb": b"deb",
-            "Dodaios-Setup-x64.exe": b"exe",
+            "JMXS-Setup-x64.exe": b"exe",
             "PersonalJarvis-Setup-x64.exe": b"exe",
         }
         self.manifest = "".join(
@@ -89,7 +89,7 @@ def test_linux_smoke_checks_appimage_and_deb_against_provenance(monkeypatch, tmp
     assert errors == []
     verified = [c[3] for c in fake.commands if c[:3] == ["gh", "attestation", "verify"]]
     assert sorted(Path(p).name for p in verified) == [
-        "Dodaios-Linux-x86_64.AppImage",
+        "JMXS-Linux-x86_64.AppImage",
         "PersonalJarvis-Linux-x86_64.AppImage",
         "personal-jarvis_1.2.3_amd64.deb",
     ]
@@ -167,7 +167,7 @@ def test_a_lasting_attestation_outage_fails_only_required_provenance(
     assert bool(errors) is failing
     if failing:
         assert errors == [
-            "build provenance attestation unavailable: Dodaios-Setup-x64.exe",
+            "build provenance attestation unavailable: JMXS-Setup-x64.exe",
             "build provenance attestation unavailable: PersonalJarvis-Setup-x64.exe",
         ]
 
@@ -184,7 +184,7 @@ def test_source_archive_digest_is_part_of_the_published_check(monkeypatch):
     assets = [
         {"name": name, "size": 1, "state": "uploaded", "digest": f"sha256:{digest}"}
         for name in release_assets.REQUIRED_ASSETS
-        | {"dodaios-src.tar.gz", "personal-jarvis-src.tar.gz"}
+        | {"jmxs-src.tar.gz", "personal-jarvis-src.tar.gz"}
     ]
     manifests = {
         "installers-SHA256SUMS.txt": "".join(
@@ -194,7 +194,7 @@ def test_source_archive_digest_is_part_of_the_published_check(monkeypatch):
             f"{digest}  {n}\n" for n in sorted(release_assets.SIGNED - {"payload-commit.txt"})
         ),
         "source-SHA256SUMS.txt": (
-            f"{'c' * 64}  dodaios-src.tar.gz\n{'c' * 64}  personal-jarvis-src.tar.gz\n"
+            f"{'c' * 64}  jmxs-src.tar.gz\n{'c' * 64}  personal-jarvis-src.tar.gz\n"
         ),
     }
 
@@ -210,15 +210,15 @@ def test_source_archive_digest_is_part_of_the_published_check(monkeypatch):
         release_assets, "release_info", lambda *a: {"databaseId": 1, "tagName": TAG}
     )
     assert release_assets.published_errors(REPO, TAG) == [
-        "release asset checksum mismatch: dodaios-src.tar.gz",
+        "release asset checksum mismatch: jmxs-src.tar.gz",
         "release asset checksum mismatch: personal-jarvis-src.tar.gz",
     ]
     manifests["source-SHA256SUMS.txt"] = f"{digest}  personal-jarvis-src.tar.gz\n"
     assert release_assets.published_errors(REPO, TAG) == [
-        "incomplete manifest: source-SHA256SUMS.txt lacks dodaios-src.tar.gz"
+        "incomplete manifest: source-SHA256SUMS.txt lacks jmxs-src.tar.gz"
     ]
     manifests["source-SHA256SUMS.txt"] = (
-        f"{digest}  dodaios-src.tar.gz\n{digest}  personal-jarvis-src.tar.gz\n"
+        f"{digest}  jmxs-src.tar.gz\n{digest}  personal-jarvis-src.tar.gz\n"
     )
     assert release_assets.published_errors(REPO, TAG) == []
 

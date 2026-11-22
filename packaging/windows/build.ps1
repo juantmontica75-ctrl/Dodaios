@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Build the Windows installer for Dodaios.
+    Build the Windows installer for JMXS.
 
 .DESCRIPTION
     One command from a clean checkout to a shippable installer:
@@ -10,10 +10,10 @@
         2. freeze the app with PyInstaller (dodaios.spec, onedir),
         3. wrap dist/Jarvis in an Inno Setup wizard.
 
-    The result is dist/installers/Dodaios-Setup-x64.exe - the name the
+    The result is dist/installers/JMXS-Setup-x64.exe - the name the
     SignPath artifact configuration pins (docs/code-signing-policy.md). A
     release signs it under that name and then publishes it twice with identical
-    bytes: as Dodaios-Setup-x64.exe and as PersonalJarvis-Setup-x64.exe, the
+    bytes: as JMXS-Setup-x64.exe and as PersonalJarvis-Setup-x64.exe, the
     name installs from before the rename look for
     (scripts/ci/installer_aliases.py).
 
@@ -96,7 +96,7 @@ $InitText = Get-Content -Raw -Encoding UTF8 $InitFile
 $VersionMatch = [regex]::Match($InitText, '__version__\s*=\s*"([^"]+)"')
 if (-not $VersionMatch.Success) { Stop-WithError "dodaios/__init__.py does not define __version__" }
 $AppVersion = $VersionMatch.Groups[1].Value
-Write-Step "Dodaios $AppVersion"
+Write-Step "JMXS $AppVersion"
 
 # --- Python ----------------------------------------------------------------
 if ($Python -eq "") {
@@ -159,7 +159,7 @@ if ($SkipPyInstaller) {
 
 # The windowed launcher under its current and its earlier name, then the CLI
 # under both of its names (dodaios.spec).
-foreach ($required in @("DodaiosApp.exe", "PersonalJarvis.exe", "dodaios.exe", "jarvis.exe")) {
+foreach ($required in @("JMXSApp.exe", "jmxs.exe")) {
     $candidate = Join-Path $BundleDir $required
     if (-not (Test-Path $candidate)) {
         Stop-WithError "the frozen bundle is missing $required (expected at $candidate)"
@@ -229,7 +229,7 @@ $IsccArgs = @(
 Invoke-Checked -Executable $Iscc -Arguments $IsccArgs -WorkingDirectory $RepoRoot -What "ISCC"
 
 # The signed name (OutputBaseFilename = SignedSetupBaseName in the .iss).
-$Artifact = Join-Path $InstallerDir "Dodaios-Setup-x64.exe"
+$Artifact = Join-Path $InstallerDir "JMXS-Setup-x64.exe"
 if (-not (Test-Path $Artifact)) {
     Stop-WithError "ISCC reported success but $Artifact does not exist"
 }

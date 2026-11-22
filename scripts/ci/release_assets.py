@@ -35,10 +35,10 @@ PUBLISHER_JOBS = {
 #: look for the earlier one, so a release publishes a byte-identical copy under
 #: that name, made after signing (``installer_aliases.py``).
 INSTALLER_NAME_PAIRS = (
-    ("Dodaios-Setup-x64.exe", "PersonalJarvis-Setup-x64.exe"),
-    ("Dodaios-macOS-arm64.dmg", "PersonalJarvis-macOS-arm64.dmg"),
-    ("Dodaios-macOS-x64.dmg", "PersonalJarvis-macOS-x64.dmg"),
-    ("Dodaios-Linux-x86_64.AppImage", "PersonalJarvis-Linux-x86_64.AppImage"),
+    ("JMXS-Setup-x64.exe", "PersonalJarvis-Setup-x64.exe"),
+    ("JMXS-macOS-arm64.dmg", "PersonalJarvis-macOS-arm64.dmg"),
+    ("JMXS-macOS-x64.dmg", "PersonalJarvis-macOS-x64.dmg"),
+    ("JMXS-Linux-x86_64.AppImage", "PersonalJarvis-Linux-x86_64.AppImage"),
 )
 #: THE switch for the earlier installer names. While it is True every release
 #: publishes, requires and checksums both names of each installer; set it to
@@ -51,7 +51,7 @@ INSTALLER_NAME_PAIRS = (
 #: minor releases or 2027-01-31, whichever comes later, and only once the
 #: ``PersonalJarvis-*`` downloads of the last three releases have dried up.
 #: Turning it off never touches releases that are already published.
-PUBLISH_EARLIER_INSTALLER_NAMES = True
+PUBLISH_EARLIER_INSTALLER_NAMES = False
 CURRENT_INSTALLERS = {current for current, _earlier in INSTALLER_NAME_PAIRS}
 EARLIER_INSTALLERS = {earlier for _current, earlier in INSTALLER_NAME_PAIRS}
 INSTALLERS = CURRENT_INSTALLERS | (
@@ -99,11 +99,11 @@ FINALIZE_ASSETS = REQUIRED_ASSETS | set(UPDATE_MANIFEST_ASSETS)
 PLATFORM_INSTALLERS = {
     platform: names & INSTALLERS
     for platform, names in {
-        "linux": {"Dodaios-Linux-x86_64.AppImage", "PersonalJarvis-Linux-x86_64.AppImage"},
-        "windows": {"Dodaios-Setup-x64.exe", "PersonalJarvis-Setup-x64.exe"},
+        "linux": {"JMXS-Linux-x86_64.AppImage", "PersonalJarvis-Linux-x86_64.AppImage"},
+        "windows": {"JMXS-Setup-x64.exe", "PersonalJarvis-Setup-x64.exe"},
         "macos": {
-            "Dodaios-macOS-arm64.dmg",
-            "Dodaios-macOS-x64.dmg",
+            "JMXS-macOS-arm64.dmg",
+            "JMXS-macOS-x64.dmg",
             "PersonalJarvis-macOS-arm64.dmg",
             "PersonalJarvis-macOS-x64.dmg",
         },
@@ -116,9 +116,9 @@ DEB_PATTERN = re.compile(r"(?:dodaios|personal-jarvis)_[0-9.]+_amd64\.deb")
 #: The source archive under its current name and the name earlier installers
 #: fall back to; both are published. ``personal-jarvis-src.tar.gz`` stays
 #: until the same planned end as the installer copies above: install scripts
-#: from releases before ``dodaios-src.tar.gz`` existed only know that name.
+#: from releases before ``jmxs-src.tar.gz`` existed only know that name.
 SOURCE_ARCHIVES = (
-    ("dodaios-src.tar.gz", "dodaios/"),
+    ("jmxs-src.tar.gz", "dodaios/"),
     ("personal-jarvis-src.tar.gz", "personal-jarvis/"),
 )
 DESKTOP_WORKFLOW = ".github/workflows/desktop-installers.yml"

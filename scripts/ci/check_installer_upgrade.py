@@ -353,7 +353,7 @@ def main() -> int:
         metavar="OWNER/REPO",
         help="Download the setup from this repository's latest published release",
     )
-    parser.add_argument("--asset", default="Dodaios-Setup-x64.exe", help="Name of that setup")
+    parser.add_argument("--asset", default="JMXS-Setup-x64.exe", help="Name of that setup")
     parser.add_argument("--current", type=Path, required=True, help="The Setup.exe just built")
     parser.add_argument("--expect-version", required=True)
     parser.add_argument("--install-dir", type=Path, required=True)

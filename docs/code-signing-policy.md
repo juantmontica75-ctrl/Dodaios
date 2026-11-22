@@ -3,7 +3,7 @@
 Free code signing provided by [SignPath.io](https://signpath.io), certificate by
 [SignPath Foundation](https://signpath.org).
 
-> **Status:** Dodaios (formerly Personal Jarvis) has applied to the SignPath Foundation open-source
+> **Status:** JMXS has NOT applied for code signing yet. The text below is the upstream Dodaios policy kept as the template; Dodaios (formerly Personal Jarvis) applied to the SignPath Foundation open-source
 > program. Until the application is approved and the first signed release ships,
 > the Windows installer on the
 > [Releases page](https://github.com/Dodaios/Dodaios/releases) is
@@ -13,9 +13,9 @@ Free code signing provided by [SignPath.io](https://signpath.io), certificate by
 
 | Artifact | Platform | Signed by |
 | --- | --- | --- |
-| `Dodaios-Setup-x64.exe` | Windows 10/11 x64 | SignPath Foundation certificate, via SignPath.io |
+| `JMXS-Setup-x64.exe` | Windows 10/11 x64 | SignPath Foundation certificate, via SignPath.io |
 
-The setup's product name is `Dodaios`. After signing, the release publishes
+The setup's product name is `JMXS`. After signing, the release publishes
 the same signed file a second time as `PersonalJarvis-Setup-x64.exe`, the
 name installs from before the rename look for; the two downloads are
 byte-identical, so both carry this signature. That copy has a planned end
@@ -94,7 +94,7 @@ artifact configuration wraps the setup file in a ZIP and pins its metadata:
 ```xml
 <artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
   <zip-file>
-    <pe-file path="Dodaios-Setup-x64.exe" product-name="Dodaios">
+    <pe-file path="JMXS-Setup-x64.exe" product-name="JMXS">
       <authenticode-sign />
     </pe-file>
   </zip-file>

@@ -501,7 +501,7 @@ A release happens **only** when the maintainer asks for one.
   Tag CI is excluded from branch-run cancellation. The checkout, tag and SHA must identify the same commit;
   failure to fetch main cannot fall back to stale ancestry.
 * The GitHub Release (notes + the resumable source archive, published as
-  `dodaios-src.tar.gz` and as `personal-jarvis-src.tar.gz` for installers from
+  `jmxs-src.tar.gz` and as `personal-jarvis-src.tar.gz` for installers from
   before the rename) is staged as a draft. `release_assets.py` waits for all three publishers and
   verifies each actual publication job in its latest attempt; workflow success
   with a skipped publication job is insufficient. It
@@ -535,7 +535,7 @@ A release happens **only** when the maintainer asks for one.
   `Dodaios-*` and, with identical bytes, under its earlier `PersonalJarvis-*`
   name, the only one installs from before the rename look for. Every build
   produces the `Dodaios-*` file; the Windows setup is built and signed as
-  `Dodaios-Setup-x64.exe` with the product name `Dodaios`, the values the
+  `JMXS-Setup-x64.exe` with the product name `Dodaios`, the values the
   SignPath artifact configuration pins (docs/code-signing-policy.md). After
   signing, the release job copies each file to its other name
   (`scripts/ci/installer_aliases.py`), `installers-SHA256SUMS.txt` lists both,
@@ -602,7 +602,7 @@ A release happens **only** when the maintainer asks for one.
   download:
 
   ```bash
-  gh attestation verify Dodaios-Setup-x64.exe -R Dodaios/Dodaios
+  gh attestation verify JMXS-Setup-x64.exe -R Dodaios/Dodaios
   ```
 
   Releases up to and including v2.9.0 predate this and have no attestation.

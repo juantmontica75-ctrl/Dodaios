@@ -194,11 +194,11 @@ def test_the_engine_source_is_ascii_so_no_code_page_can_alter_it() -> None:
 @pytest.mark.parametrize("source", [INSTALL_SH, INSTALL_PS1])
 def test_the_archive_download_tries_the_current_name_first(source: Path) -> None:
     text = source.read_text(encoding="utf-8")
-    current = text.index("dodaios-src.tar.gz")
+    current = text.index("jmxs-src.tar.gz")
     legacy = text.index("personal-jarvis-src.tar.gz")
     assert current < legacy
     # Both on one line: one list, tried in order.
-    assert text.count("dodaios-src.tar.gz") == 1
+    assert text.count("jmxs-src.tar.gz") == 1
     assert text.count("personal-jarvis-src.tar.gz") == 1
     assert text[current:legacy].count("\n") == 0
 

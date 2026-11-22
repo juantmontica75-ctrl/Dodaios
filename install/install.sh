@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Dodaios — macOS / Linux quick-install bootstrap (Stage 1)
+# JMXS — macOS / Linux quick-install bootstrap (Stage 1)
 #
 # Usage (from any POSIX shell):
-#   curl -fsSL https://raw.githubusercontent.com/Dodaios/Dodaios/main/install/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/juantmontica75-ctrl/Dodaios/main/install/install.sh | bash
 #
 # This bootstrap is intentionally small. It:
 #   1. Uses Python 3.11+ and git when they are installed. A missing Python
@@ -10,7 +10,7 @@
 #      prompt).
 #   2. Offers to install a missing git, then re-checks in place.
 #   3. Checks for Node.js 18+ (optional - a missing Node never blocks the install).
-#   4. Clones (or updates) Dodaios into ~/.dodaios (an update moves an install
+#   4. Clones (or updates) JMXS into ~/.dodaios (an update moves an install
 #      made under the earlier name ~/.personal-jarvis there).
 #   5. Creates a Python venv, installs `rich` + `packaging`.
 #   6. Hands control to install/installer.py (the Stage 2 orchestrator).
@@ -48,17 +48,17 @@ adopt_install_option_names
 
 # Standalone bootstrap projections of dodaios/core/branding.py. The branding
 # contract test rejects drift because this script runs before Python is installed.
-OFFICIAL_REPO_SLUG="${JARVIS_OFFICIAL_REPO_SLUG:-Dodaios/Dodaios}"
+OFFICIAL_REPO_SLUG="${JARVIS_OFFICIAL_REPO_SLUG:-juantmontica75-ctrl/Dodaios}"
 if [[ ! "$OFFICIAL_REPO_SLUG" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
     printf 'JARVIS_OFFICIAL_REPO_SLUG must be an exact owner/repository slug\n' >&2
     exit 2
 fi
 REPO_URL="${JARVIS_INSTALL_REPO:-https://github.com/${OFFICIAL_REPO_SLUG}.git}"
-LEGACY_OFFICIAL_REPO_SLUG="PersonalJarvis/PersonalJarvis"
-CONFIG_FILE_NAME="dodaios.toml"
+LEGACY_OFFICIAL_REPO_SLUG="$OFFICIAL_REPO_SLUG"
+CONFIG_FILE_NAME="jmxs.toml"
 # An install keeps a config file under this earlier name; it is never renamed.
-LEGACY_CONFIG_FILE_NAME="jarvis.toml"
-MACOS_AUTOSTART_LABEL="com.personal-jarvis.autostart"
+LEGACY_CONFIG_FILE_NAME="$CONFIG_FILE_NAME"
+MACOS_AUTOSTART_LABEL="com.jmxs-desktop.autostart"
 # Empty = the newest published release (resolve_install_ref below).
 BRANCH="${JARVIS_INSTALL_REF:-}"
 # --- install-dir-choice begin (extracted by tests/unit/install/test_install_dir_move.py)
@@ -66,8 +66,10 @@ BRANCH="${JARVIS_INSTALL_REF:-}"
 # keeps its directory for as long as that is a real directory, and an update
 # run moves it (migrate_install_dir below). A directory given in
 # JARVIS_INSTALL_DIR (or DODAIOS_INSTALL_DIR) is used as given, never moved.
-DEFAULT_INSTALL_DIR_NAME=".dodaios"
-LEGACY_INSTALL_DIR_NAME=".personal-jarvis"
+DEFAULT_INSTALL_DIR_NAME=".jmxs"
+# JMXS has no earlier name: the alias keeps the variable non-empty and
+# never points at another product's folder.
+LEGACY_INSTALL_DIR_NAME="$DEFAULT_INSTALL_DIR_NAME"
 CURRENT_INSTALL_DIR="$HOME/$DEFAULT_INSTALL_DIR_NAME"
 LEGACY_INSTALL_DIR="$HOME/$LEGACY_INSTALL_DIR_NAME"
 MIGRATE_LEGACY_INSTALL_DIR=0
@@ -176,7 +178,7 @@ run_spin() {
     return $_spin_rc
 }
 
-# The mascot is the real Dodaios logo (the gold-eyed ghost), machine-generated
+# The mascot is the real JMXS logo (the gold-eyed ghost), machine-generated
 # as xterm-256 half-block pixel art from the brand PNG (two vertical pixels
 # per cell via U+2580 fg/bg pairs). Regenerate from a new logo file rather
 # than hand-editing the escapes. Color-gated: without color escapes the half
@@ -220,7 +222,7 @@ ${GOLD_DEEP}       ╚═════╝  ╚═════╝ ╚════�
 
 ${DIM}     talk to your computer · installs the full profile · launches when done${RST}
 
-${DIM}┌${RST}  ${GOLD}Dodaios installer${RST}
+${DIM}┌${RST}  ${GOLD}JMXS installer${RST}
 EOF
 
 # -------------------------------------------------------------- welcome gate
@@ -246,10 +248,10 @@ ask_welcome() {
         "$GUT" "$GUT" "$DIM" "$RST" > /dev/tty
     while :; do
         if [ "$_sel" -eq 0 ]; then
-            printf '\r%s◆%s  %sWould you like to install Dodaios?%s   %s%s ▸ Yes %s   %s   No  %s' \
+            printf '\r%s◆%s  %sWould you like to install JMXS?%s   %s%s ▸ Yes %s   %s   No  %s' \
                 "$GOLD" "$RST" "$BOLD" "$RST" "$GOLD" "$REV" "$RST" "$DIM" "$RST" > /dev/tty
         else
-            printf '\r%s◆%s  %sWould you like to install Dodaios?%s   %s   Yes %s   %s%s ▸ No  %s' \
+            printf '\r%s◆%s  %sWould you like to install JMXS?%s   %s   Yes %s   %s%s ▸ No  %s' \
                 "$GOLD" "$RST" "$BOLD" "$RST" "$DIM" "$RST" "$RED" "$REV" "$RST" > /dev/tty
         fi
         IFS= read -rsn1 _key < /dev/tty || return 0
@@ -499,7 +501,7 @@ write_prerequisite_state() {
     elif [ "$_show_missing" -eq 1 ]; then
         err 'Python 3.11+ not found.'
         if [ -n "$FOUND_TOO_OLD" ]; then
-            note "Closest match: $FOUND_TOO_OLD - too old: Dodaios needs 3.11+."
+            note "Closest match: $FOUND_TOO_OLD - too old: JMXS needs 3.11+."
             note 'Python versions count 3.8 < 3.9 < 3.10 < 3.11.'
         fi
     fi
@@ -571,11 +573,11 @@ request_prerequisite_consent() {
 
     note "Missing required software: $_missing."
     if [ -n "$PREREQ_MANAGER" ]; then
-        note "Dodaios can install it with $PREREQ_MANAGER, wait, and continue this same run."
+        note "JMXS can install it with $PREREQ_MANAGER, wait, and continue this same run."
         note 'Continuing authorizes the package manager to accept the relevant package agreements.'
         _prompt='  Install the missing prerequisites now? [Y/n] '
     else
-        note 'No supported package manager was found; Dodaios can keep this run open while you install it.'
+        note 'No supported package manager was found; JMXS can keep this run open while you install it.'
         _prompt='  Show the manual path and keep checking this run? [Y/n] '
     fi
     printf '%s' "$_prompt" >/dev/tty
@@ -831,7 +833,7 @@ ensure_linux_desktop_tools() {
         *)
             if has_install_tty; then
                 note "Optional desktop tools for window control are missing: $_missing_bins $_missing_gi"
-                note "Without them, asking Dodaios to click / type / switch windows cannot work on X11."
+                note "Without them, asking JMXS to click / type / switch windows cannot work on X11."
                 printf '  Install them now with %s? [Y/n] ' "$PREREQ_MANAGER" >/dev/tty
                 IFS= read -r _answer </dev/tty || _answer='n'
                 case "$_answer" in ''|y|Y|yes|YES|Yes) _consent=1 ;; esac
@@ -903,7 +905,7 @@ ensure_linux_desktop_tools "$@"
 
 # Node.js 18+ — powers only the OPTIONAL agent worker CLIs (Claude Code
 # / Codex) that heavy missions delegate to, plus the Node-based marketplace
-# integrations. Everything else in Dodaios runs without it, so a missing Node
+# integrations. Everything else in JMXS runs without it, so a missing Node
 # must NEVER turn a new user away at the door: we note it and continue — the
 # worker CLI can be added later in-app once Node is installed. Skipped
 # entirely on the headless / tiny-VPS path (--headless): a cloud-only base
@@ -932,7 +934,7 @@ else
     if [ "$node_ok" -eq 1 ]; then
         ok "Node.js $(node --version)"
     else
-        note 'Node.js 18+ not found - continuing, Dodaios runs fine without it.'
+        note 'Node.js 18+ not found - continuing, JMXS runs fine without it.'
         note 'It only powers the optional coding-agent worker (Claude Code / Codex).'
         note 'Install it any time ("brew install node" / https://nodejs.org/) and'
         note 'add the worker later in-app.'
@@ -940,7 +942,7 @@ else
 fi
 
 # -------------------------------------------------------------- clone / update
-phase '2/6' 'Fetching Dodaios'
+phase '2/6' 'Fetching JMXS'
 note "$INSTALL_DIR"
 
 # On a terminal, git paints its own "Receiving objects: NN%" progress so a
@@ -1083,7 +1085,7 @@ tarball_fallback() {
     _asset_base="https://github.com/$_repo_path/releases/latest/download"
     # The archive's current name first; releases cut before the rename only
     # carry the earlier one.
-    _asset_names='dodaios-src.tar.gz personal-jarvis-src.tar.gz'
+    _asset_names='jmxs-src.tar.gz'
     _snapshot_url="https://codeload.github.com/$_repo_path/tar.gz/$(ref_archive_path)"
     if [ -n "${JARVIS_PAYLOAD_COMMIT:-}" ]; then
         # A verified install is pinned to ONE signed commit; the "latest"
@@ -1243,7 +1245,7 @@ retarget_legacy_origin() {
     # --- retarget-legacy-origin end
 }
 
-# Stop any Dodaios still running out of THIS install. Called right before the
+# Stop any JMXS still running out of THIS install. Called right before the
 # checkout is replaced and again before its environment is rebuilt: a release
 # may move or delete files the live app still loads, and an app left running
 # across that keeps serving a half-old, half-new program until it falls over.
@@ -1280,7 +1282,7 @@ stop_running_app() {
         _stop_found=0
         if pkill -f "$_stop_venv" 2>/dev/null; then
             _stop_found=1
-            note 'stopped the running Dodaios app for the update'
+            note 'stopped the running JMXS app for the update'
         fi
         if [ "$(uname -s 2>/dev/null)" = "Darwin" ]; then
             launchctl unload "$HOME/Library/LaunchAgents/${MACOS_AUTOSTART_LABEL}.plist" >/dev/null 2>&1 || true
@@ -1422,7 +1424,7 @@ phase '3/6' 'Python environment'
 VENV_PATH="$INSTALL_DIR/.venv"
 VENV_PYTHON="$VENV_PATH/bin/python"
 
-# Update runs: stop any Dodaios still running out of THIS install before we
+# Update runs: stop any JMXS still running out of THIS install before we
 # touch its environment. A live app (often revived by the login autostart)
 # keeps serving stale, half-updated features while pip rewrites the venv
 # under it — the "app is already open but nothing works yet" field report

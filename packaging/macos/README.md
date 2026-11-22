@@ -5,8 +5,8 @@ family:
 
 | Runner | Artifact |
 |---|---|
-| Apple Silicon (`macos-15`) | `dist/installers/Dodaios-macOS-arm64.dmg` |
-| Intel (`macos-15-intel`) | `dist/installers/Dodaios-macOS-x64.dmg` |
+| Apple Silicon (`macos-15`) | `dist/installers/JMXS-macOS-arm64.dmg` |
+| Intel (`macos-15-intel`) | `dist/installers/JMXS-macOS-x64.dmg` |
 
 The image contains `Dodaios.app` next to a symlink to `/Applications`:
 open it, drag the app across, done. The app is a PyInstaller `BUNDLE` built

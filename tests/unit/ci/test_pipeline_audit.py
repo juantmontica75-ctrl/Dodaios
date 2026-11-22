@@ -1337,7 +1337,7 @@ def test_finalization_uploads_and_verifies_source_before_publication(monkeypatch
     prefixes = [c[3] for c in fake.commands if c[:2] == ["git", "archive"]]
     assert prefixes == ["--prefix=dodaios/", "--prefix=personal-jarvis/"]
     assert {asset["name"] for asset in fake.assets} >= {
-        "dodaios-src.tar.gz",
+        "jmxs-src.tar.gz",
         "personal-jarvis-src.tar.gz",
         "source-SHA256SUMS.txt",
     }

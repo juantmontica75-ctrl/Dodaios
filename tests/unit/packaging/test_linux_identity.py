@@ -187,7 +187,7 @@ def test_the_appimage_is_built_under_its_current_name() -> None:
     earlier name is the release's job (dual publishing), not the build's."""
     script = _BUILD_SH.read_text(encoding="utf-8")
     current, earlier = INSTALLER_ASSET_NAMES[("linux", "x64")]
-    assert current == "Dodaios-Linux-x86_64.AppImage"
+    assert current == "JMXS-Linux-x86_64.AppImage"
     assert f'APPIMAGE_PATH="${{OUT_DIR}}/{current}"' in script
     # The earlier name appears in no command, only in the comment explaining the alias.
     commands = [line for line in script.splitlines() if not line.lstrip().startswith("#")]

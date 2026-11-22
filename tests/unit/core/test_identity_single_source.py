@@ -341,7 +341,7 @@ def test_the_shell_uninstaller_names_every_credential_service() -> None:
         ("AppName", branding.LAUNCHER_ENTRY_NAME),
         ("GuiExeName", branding.WINDOWS_BRANDED_LAUNCHER_FILE_NAME),
         ("CliExeName", f"{branding.CLI_COMMAND_NAME}.exe"),
-        ("LegacyCliExeName", f"{_first(branding.LEGACY_CLI_COMMAND_NAMES)}.exe"),
+        ("LegacyCliExeName", "".join(f"{n}.exe" for n in branding.LEGACY_CLI_COMMAND_NAMES[:1])),
         ("UserDataDirDisplay", rf"%LOCALAPPDATA%\{branding.WINDOWS_USER_DATA_DIR_NAME}"),
         ("AppPublisher", branding.LAUNCHER_ENTRY_NAME),
         ("LegacyAppName", _first(branding.LEGACY_LAUNCHER_ENTRY_NAMES)),
@@ -357,12 +357,10 @@ def test_the_windows_installer_script_restates_the_names(definition: str, expect
 def test_the_windows_installer_retires_the_earlier_shortcuts_and_keeps_its_identity() -> None:
     script = _read("packaging/windows/Dodaios.iss")
     # Windows upgrades by AppId: a new one would install a second product.
-    assert '#define AppGuid "7F1C4E42-2E5B-4F0A-9E1B-1A7B6C0D5E88"' in script
-    # The shortcuts an earlier release created under the earlier name go; the
-    # Desktop one only where it starts this installation.
+    assert '#define AppGuid "E5C712D2-262B-49DF-BC1D-14B4AEE953C6"' in script
+    # JMXS has no earlier product name, so it removes no earlier shortcuts.
     install_delete = script.split("\n[InstallDelete]\n", 1)[1].split("\n[", 1)[0]
-    assert r'"{autoprograms}\{#LegacyAppName}\{#LegacyAppName}.lnk"' in install_delete
-    assert "Check: LegacyShortcutStartsThisApp(" in install_delete
+    assert "Type:" not in install_delete
     assert "UsePreviousGroup=no" in script
     # The setup's product name is what the SignPath artifact configuration
     # checks (docs/code-signing-policy.md): it stays until that pin moves.

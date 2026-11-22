@@ -133,18 +133,34 @@ credential, only the file-level GitHub connector):
   `pyproject.toml` installed docs under `share/dodaios/` while the code reads
   `share/<distribution>/` (now `share/jmxs/`).
 
-STILL OPEN (tests in `test_identity_single_source.py` fail on purpose until done):
-1. `packaging/windows/Dodaios.iss`: names, publisher, URL, exe names, and a NEW
-   `AppGuid` (JMXS must not upgrade over a Dodaios install). Update the
-   SignPath/CI names that pin the setup file name.
-2. `packaging/windows/build.ps1`, `packaging/linux/build.sh`,
-   `packaging/macos/build.sh`: JMXS names, no `PersonalJarvis`/`jarvis` shims.
-3. `install/install.sh`, `install/install.ps1`, `install/install-verify.*`:
-   still the Dodaios one-line installers (`.dodaios`, upstream raw URLs).
-4. `dodaios/cli/app_update.py` (and `response_style.py`, `voice_engine/models.py`)
-   still point at `github.com/Dodaios/Dodaios` installers/URLs.
-5. Folder-by-folder main-vs-branch unit comparison after `credential_broker`,
+Also done (second commit of session 4): installers, packaging and CI renamed
+to JMXS. `install.sh`/`install.ps1` no longer migrate from `.personal-jarvis`
+(the legacy variable aliases the current folder), fetch `jmxs-src.tar.gz`, and
+point at the fork; `JMXS.iss` has a NEW `AppGuid` (`E5C712D2-262B-...`) so it
+never upgrades a Dodaios install, no earlier-name shortcut cleanup, no
+`PersonalJarvis.exe`/`jarvis.exe`; Linux `.deb` is `jmxs` and no longer
+`Replaces/Conflicts/Provides: personal-jarvis`; macOS/Linux/Windows build
+scripts ship only `jmxs`; workflows, `scripts/ci/release_assets.py` and docs use
+`JMXS-Setup-x64.exe`, `JMXS-macOS-*`, `JMXS-Linux-*`, and
+`PUBLISH_EARLIER_INSTALLER_NAMES = False`.
+`test_identity_single_source.py` + `test_branding.py`: 73 passed (run with
+`--noconftest`; the one reported error is a conftest-only fixture).
+
+STILL OPEN:
+1. Not runnable in the session sandbox (missing typer/httpx/tomlkit/pytest-asyncio,
+   no installs): `tests/unit/cli_ctl/*`, `tests/unit/ci/*`,
+   `tests/unit/packaging/*`, `tests/unit/install/*`, `tests/unit/core/test_update_manifest.py`,
+   `test_installer_update.py`. Their asset-name pins were renamed mechanically;
+   run them where dependencies exist.
+2. CI leftovers: `personal-jarvis.intoto.jsonl` in `release_assets.REQUIRED_ASSETS`,
+   `PersonalJarvis-*` branches in `release-smoke.yml`, `docs/rename/*`,
+   `packaging/*/README.md`, and the SignPath section of the signing policy
+   (JMXS has not applied for signing).
+3. Lowercase `dodaios` in packaging (`dodaios.ico`/asset paths, `dodaios.toml.example`)
+   is intentional internal naming; `jarvis.toml` seeding in the build scripts
+   should become `jmxs.toml` (spec bundles it).
+4. Folder-by-folder main-vs-branch unit comparison after `credential_broker`,
    `brain` file by file; full `npm test`, build with
-   `NODE_OPTIONS=--max-old-space-size=4096`, ruff classification, wheel rebuild.
-   This sandbox lacks typer/httpx/tomlkit/pytest-asyncio and cannot install
-   them, so those runs must happen where dependencies are available.
+   `NODE_OPTIONS=--max-old-space-size=4096`, ruff classification, wheel rebuild
+   and a fresh-venv run of `jmxs --version` / `jmxs-gateway show` (the real
+   "does it start" check).

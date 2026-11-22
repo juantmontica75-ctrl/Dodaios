@@ -117,13 +117,13 @@ def test_select_installer_asset_picks_this_machines_file() -> None:
 @pytest.mark.parametrize(
     ("platform_name", "machine", "expected"),
     [
-        ("win32", "AMD64", ("Dodaios-Setup-x64.exe", "PersonalJarvis-Setup-x64.exe")),
-        ("darwin", "arm64", ("Dodaios-macOS-arm64.dmg", "PersonalJarvis-macOS-arm64.dmg")),
-        ("darwin", "x86_64", ("Dodaios-macOS-x64.dmg", "PersonalJarvis-macOS-x64.dmg")),
+        ("win32", "AMD64", ("JMXS-Setup-x64.exe", "PersonalJarvis-Setup-x64.exe")),
+        ("darwin", "arm64", ("JMXS-macOS-arm64.dmg", "PersonalJarvis-macOS-arm64.dmg")),
+        ("darwin", "x86_64", ("JMXS-macOS-x64.dmg", "PersonalJarvis-macOS-x64.dmg")),
         (
             "linux",
             "x86_64",
-            ("Dodaios-Linux-x86_64.AppImage", "PersonalJarvis-Linux-x86_64.AppImage"),
+            ("JMXS-Linux-x86_64.AppImage", "PersonalJarvis-Linux-x86_64.AppImage"),
         ),
     ],
 )
@@ -172,12 +172,12 @@ def test_releases_publish_every_accepted_name_so_old_installs_keep_updating() ->
 def test_select_installer_asset_prefers_the_first_accepted_name() -> None:
     assets = _release_assets(
         "PersonalJarvis-macOS-arm64.dmg",
-        "Dodaios-macOS-arm64.dmg",
+        "JMXS-macOS-arm64.dmg",
         CHECKSUMS_ASSET_NAME,
     )
     picked = select_installer_asset(assets, platform_name="darwin", machine="arm64")
     assert picked is not None
-    assert picked.name == "Dodaios-macOS-arm64.dmg"
+    assert picked.name == "JMXS-macOS-arm64.dmg"
 
 
 def test_select_installer_asset_takes_the_only_name_a_release_carries() -> None:
@@ -278,7 +278,7 @@ async def test_download_and_verify_refuses_when_the_manifest_omits_the_asset(
 async def test_download_and_verify_takes_the_first_name_the_manifest_vouches_for(
     tmp_path: Path,
 ) -> None:
-    preferred = _asset("Dodaios-Setup-x64.exe")
+    preferred = _asset("JMXS-Setup-x64.exe")
     published = _asset("PersonalJarvis-Setup-x64.exe")
     both = f"{PAYLOAD_SHA256}  {preferred.name}\n{PAYLOAD_SHA256}  {published.name}\n"
     fetcher = FakeAssetFetcher(manifest=both, payload=PAYLOAD)
@@ -299,7 +299,7 @@ async def test_download_and_verify_skips_a_name_the_manifest_does_not_list(
     tmp_path: Path,
 ) -> None:
     """Present in the release is not enough: only a checksummed file is fetched."""
-    preferred = _asset("Dodaios-Setup-x64.exe")
+    preferred = _asset("JMXS-Setup-x64.exe")
     published = _asset("PersonalJarvis-Setup-x64.exe")
     fetcher = FakeAssetFetcher(
         manifest=f"{PAYLOAD_SHA256}  {published.name}\n", payload=PAYLOAD
@@ -321,7 +321,7 @@ async def test_download_and_verify_skips_a_name_the_manifest_does_not_list(
 async def test_download_and_verify_refuses_when_no_accepted_name_is_listed(
     tmp_path: Path,
 ) -> None:
-    preferred = _asset("Dodaios-Setup-x64.exe")
+    preferred = _asset("JMXS-Setup-x64.exe")
     published = _asset("PersonalJarvis-Setup-x64.exe")
     fetcher = FakeAssetFetcher(
         manifest=f"{PAYLOAD_SHA256}  PersonalJarvis-macOS-arm64.dmg\n", payload=PAYLOAD
@@ -342,7 +342,7 @@ async def test_download_and_verify_refuses_when_no_accepted_name_is_listed(
 async def test_download_and_verify_applies_the_size_cap_to_the_chosen_file(
     tmp_path: Path,
 ) -> None:
-    preferred = _asset("Dodaios-Setup-x64.exe")
+    preferred = _asset("JMXS-Setup-x64.exe")
     published = _asset("PersonalJarvis-Setup-x64.exe", size=10_000)
     fetcher = FakeAssetFetcher(
         manifest=f"{PAYLOAD_SHA256}  {published.name}\n", payload=PAYLOAD
@@ -761,7 +761,7 @@ def test_the_updater_keeps_recognising_every_name_and_id_of_ours() -> None:
 
 def _renamed_release(tmp_path: Path, *, running_id: str | None) -> tuple[Path, Path, Path]:
     """``(dmg, running app, where the renamed app belongs)``."""
-    dmg = tmp_path / "Dodaios-macOS-arm64.dmg"
+    dmg = tmp_path / "JMXS-macOS-arm64.dmg"
     dmg.write_bytes(PAYLOAD)
     app = tmp_path / "Applications" / OLD_APP_NAME
     _write_bundle(app, "old", running_id)

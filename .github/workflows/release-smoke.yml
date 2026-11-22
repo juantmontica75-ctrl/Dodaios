@@ -169,7 +169,7 @@ jobs:
           python - <<'PYEOF'
           import os
           import sys
-          for name in ("Dodaios-Linux-x86_64.AppImage", "PersonalJarvis-Linux-x86_64.AppImage"):
+          for name in ("JMXS-Linux-x86_64.AppImage", "PersonalJarvis-Linux-x86_64.AppImage"):
               if name.startswith("PersonalJarvis-") and not os.path.exists(name):
                   continue
               with open(name, "rb") as stream:
@@ -183,7 +183,7 @@ jobs:
         shell: pwsh
         run: |
           $failed = $false
-          foreach ($name in @('Dodaios-Setup-x64.exe', 'PersonalJarvis-Setup-x64.exe')) {
+          foreach ($name in @('JMXS-Setup-x64.exe', 'PersonalJarvis-Setup-x64.exe')) {
             $installer = Join-Path $env:RUNNER_TEMP "installers\$name"
             # The earlier name is absent once release_assets.py stops publishing it.
             if ($name -like 'PersonalJarvis-*' -and -not (Test-Path -LiteralPath $installer)) { continue }
@@ -207,7 +207,7 @@ jobs:
           set -euo pipefail
           cd "$RUNNER_TEMP/installers"
           failed=0
-          for dmg in Dodaios-macOS-arm64.dmg Dodaios-macOS-x64.dmg PersonalJarvis-macOS-arm64.dmg PersonalJarvis-macOS-x64.dmg; do
+          for dmg in JMXS-macOS-arm64.dmg JMXS-macOS-x64.dmg PersonalJarvis-macOS-arm64.dmg PersonalJarvis-macOS-x64.dmg; do
             # The earlier name is absent once release_assets.py stops publishing it.
             case "$dmg" in PersonalJarvis-*) [ -e "$dmg" ] || continue ;; esac
             hdiutil verify "$dmg"

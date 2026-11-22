@@ -1,22 +1,20 @@
 #!/usr/bin/env bash
 #
-# Build the distributable Linux AppImage for Dodaios.
+# Build the distributable Linux AppImage for JMXS.
 #
 #   packaging/linux/build.sh
 #
 # Output (per the release contract):
-#   dist/installers/Dodaios-Linux-x86_64.AppImage
-#   dist/installers/dodaios_<version>_amd64.deb           (when dpkg-deb exists)
+#   dist/installers/JMXS-Linux-x86_64.AppImage
+#   dist/installers/jmxs_<version>_amd64.deb           (when dpkg-deb exists)
 #
 # The installed names are already the current ones: the Debian package
-# "dodaios" (it replaces the earlier "personal-jarvis" package), /opt/Dodaios,
-# dodaios.desktop and the dodaios icon. A release also publishes the AppImage
-# as PersonalJarvis-Linux-x86_64.AppImage, a byte-identical copy for installs
-# from before the rename (scripts/ci/installer_aliases.py).
+# "jmxs" (it replaces no other package), /opt/JMXS,
+# jmxs.desktop and the jmxs icon.
 #
 # The AppImage is one downloadable file that needs no Python, no pip and no
 # system packages: double-click it to run the app, or call it like the CLI
-# ("./Dodaios-Linux-x86_64.AppImage serve"). Both entry points come out
+# ("./JMXS-Linux-x86_64.AppImage serve"). Both entry points come out
 # of the same PyInstaller onedir freeze.
 #
 # What this AppImage does NOT contain is a native desktop window - read
@@ -47,7 +45,7 @@ FREEZE_DIR="${FREEZE_DIR:-${DIST_DIR}/Jarvis}"
 OUT_DIR="${DIST_DIR}/installers"
 APPDIR="${DIST_DIR}/AppDir"
 FRONTEND_DIST="${REPO_ROOT}/dodaios/ui/web/dist"
-APPIMAGE_PATH="${OUT_DIR}/Dodaios-Linux-x86_64.AppImage"
+APPIMAGE_PATH="${OUT_DIR}/JMXS-Linux-x86_64.AppImage"
 
 # Pinned build tool. "continuous" is a moving target and an unpinned build tool
 # is an unpinned supply chain, so this is an exact release plus its digest; the
@@ -60,21 +58,16 @@ APPIMAGETOOL_CACHE="${DIST_DIR}/.build-tools/appimagetool-${APPIMAGETOOL_VERSION
 ICON_SOURCE="${REPO_ROOT}/dodaios/assets/icons/dodaios.png"  # the head tile (#1183)
 # The desktop entry, its icon and the window class share one name
 # (dodaios/core/branding.py: LINUX_DESKTOP_ENTRY_FILE_NAME, LINUX_WM_CLASS).
-DESKTOP_FILE_NAME="dodaios.desktop"
-# The console command and its earlier name; both ship (dodaios.spec builds both).
-CLI_EXE_NAMES=("dodaios" "jarvis")
-ICON_FILE_NAME="dodaios.png"
+DESKTOP_FILE_NAME="jmxs.desktop"
+# The console command (dodaios.spec builds it).
+CLI_EXE_NAMES=("jmxs")
+ICON_FILE_NAME="jmxs.png"
 # usr/share/<name> inside the AppDir; AppRun reads its browser-ui marker there.
-SHARE_DIR_NAME="dodaios"
-# The Debian package. It takes over from the package under its earlier name:
-# Conflicts + Replaces let dpkg remove that package while installing this one,
-# and Provides keeps anything that depends on the earlier name satisfied.
-DEB_PACKAGE_NAME="dodaios"
-LEGACY_DEB_PACKAGE_NAME="personal-jarvis"
-DEB_INSTALL_DIR="/opt/Dodaios"
-# The earlier command that opens the app; kept so a launcher, a script or a
-# habit that calls it keeps working.
-LEGACY_APP_COMMAND_NAME="personal-jarvis"
+SHARE_DIR_NAME="jmxs"
+# The Debian package. JMXS declares no earlier package: it never Replaces,
+# Conflicts with or Provides another product's package.
+DEB_PACKAGE_NAME="jmxs"
+DEB_INSTALL_DIR="/opt/JMXS"
 
 log() { printf '[linux-build] %s\n' "$*"; }
 die() { printf '[linux-build] ERROR: %s\n' "$*" >&2; exit 1; }
@@ -156,12 +149,12 @@ else
   )
 fi
 
-# The windowed target is named DodaiosApp in dodaios.spec, because `Dodaios`
+# The windowed target is named JMXSApp in dodaios.spec, because `JMXS`
 # and `dodaios` are the SAME path on Windows and on a default macOS volume and
 # the second executable would overwrite the first. Linux has no such problem,
 # but the freeze is shared, so accept the earlier names too rather than pinning
 # one. The freeze also ships the launcher under its earlier name PersonalJarvis.
-GUI_EXE_CANDIDATES=("DodaiosApp" "PersonalJarvis" "Jarvis")
+GUI_EXE_CANDIDATES=("JMXSApp" "Jarvis")
 GUI_EXE_NAME=""
 if building; then
   for candidate in "${GUI_EXE_CANDIDATES[@]}"; do
@@ -301,8 +294,7 @@ elif ! command -v dpkg-deb >/dev/null 2>&1; then
 else
   VERSION="$("${PYTHON}" -c "import sys; sys.path.insert(0, '${REPO_ROOT}'); import dodaios; print(dodaios.__version__)")"
   DEB_ROOT="${DIST_DIR}/deb-root"
-  # Named after the package inside it, as Debian names its files. Releases
-  # up to 4.1.2 called the file personal-jarvis_<version>_amd64.deb.
+  # Named after the package inside it, as Debian names its files.
   DEB_PATH="${OUT_DIR}/${DEB_PACKAGE_NAME}_${VERSION}_amd64.deb"
   log "building ${DEB_PATH}"
   run rm -rf "${DEB_ROOT}"
@@ -323,19 +315,15 @@ Priority: optional
 Architecture: amd64
 Depends: libc6
 Recommends: libportaudio2
-Replaces: ${LEGACY_DEB_PACKAGE_NAME}
-Conflicts: ${LEGACY_DEB_PACKAGE_NAME}
-Provides: ${LEGACY_DEB_PACKAGE_NAME}
-Maintainer: Dodaios contributors <https://github.com/Dodaios/Dodaios>
+Maintainer: JMXS contributors <https://github.com/juantmontica75-ctrl/Dodaios>
 Description: AI agent for your computer
- Dodaios coordinates desktop apps, tools, models and specialized
+ JMXS coordinates desktop apps, tools, models and specialized
  agents. This package ships the self-contained desktop build; it needs no
  system Python and no pip installation.
 EOF
     for cli_name in "${CLI_EXE_NAMES[@]}"; do
       ln -sf "${DEB_INSTALL_DIR}/usr/bin/${cli_name}" "${DEB_ROOT}/usr/bin/${cli_name}"
     done
-    ln -sf "${DEB_INSTALL_DIR}/AppRun" "${DEB_ROOT}/usr/bin/${LEGACY_APP_COMMAND_NAME}"
     cp "${ICON_SOURCE}" "${DEB_ROOT}/usr/share/icons/hicolor/256x256/apps/${ICON_FILE_NAME}"
   fi
   run "${PYTHON}" "${SCRIPT_DIR}/make_desktop_entry.py" \

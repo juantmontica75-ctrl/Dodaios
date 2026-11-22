@@ -1,15 +1,15 @@
-# Dodaios - Windows quick-install bootstrap (Stage 1)
+# JMXS - Windows quick-install bootstrap (Stage 1)
 #
 # Usage (from PowerShell):
-#   irm https://raw.githubusercontent.com/Dodaios/Dodaios/main/install/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/juantmontica75-ctrl/Dodaios/main/install/install.ps1 | iex
 #
 # This bootstrap is intentionally small. It:
 #   1. Uses Python 3.11+ and git when they are installed.
 #   2. Otherwise fetches private, checksum-pinned copies (uv-managed Python,
-#      MinGit) into %LOCALAPPDATA%\Dodaios\tools - no admin rights, no
+#      MinGit) into %LOCALAPPDATA%\JMXS\tools - no admin rights, no
 #      prompt - and offers WinGet only when that download fails.
 #   3. Checks for Node.js 18+ (optional - a missing Node never blocks the install).
-#   4. Clones (or updates) Dodaios into ~\.dodaios (an update moves an install
+#   4. Clones (or updates) JMXS into ~\.jmxs (an update moves an install
 #      made under the earlier name ~\.personal-jarvis there).
 #   5. Creates a Python venv, installs `rich` + `packaging`.
 #   6. Hands control to install/installer.py (the Stage 2 orchestrator).
@@ -61,7 +61,7 @@ $Gut = "$Dim$([char]0x2502)$Rst"   # dim gutter bar
 
 # ----------------------------------------------------------------- helpers
 function Write-Banner {
-    # The mascot is the real Dodaios logo (the gold-eyed ghost), machine-
+    # The mascot is the real JMXS logo (the gold-eyed ghost), machine-
     # generated as xterm-256 half-block pixel art from the brand PNG and
     # stored base64-encoded (the decoded UTF-8 carries real ESC bytes) so
     # this source file stays ASCII. Regenerate from a new logo file rather
@@ -176,7 +176,7 @@ $GoldDeep       ╚═════╝  ╚═════╝ ╚═════�
 
 $Dim     talk to your computer · installs the full profile · launches when done$Rst
 
-$Dim┌$Rst  ${Gold}Dodaios installer$Rst
+$Dim┌$Rst  ${Gold}JMXS installer$Rst
 "@
     Write-Host $art
 }
@@ -216,7 +216,7 @@ Use-InstallOptionNames
 # Standalone bootstrap projections of dodaios/core/branding.py. The branding
 # contract test rejects drift because this script runs before Python is installed.
 $OfficialRepoSlug = "$env:JARVIS_OFFICIAL_REPO_SLUG"
-if (-not $OfficialRepoSlug) { $OfficialRepoSlug = 'Dodaios/Dodaios' }
+if (-not $OfficialRepoSlug) { $OfficialRepoSlug = 'juantmontica75-ctrl/Dodaios' }
 if ($OfficialRepoSlug -notmatch '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$') {
     throw 'JARVIS_OFFICIAL_REPO_SLUG must be an exact owner/repository slug'
 }
@@ -228,13 +228,14 @@ $LegacyConfigFileName = 'jarvis.toml'
 # Empty = the newest published release (Resolve-InstallRef below).
 $Branch     = if ($env:JARVIS_INSTALL_REF)  { $env:JARVIS_INSTALL_REF }  else { '' }
 # --- install-dir-choice begin (extracted by tests/unit/install/test_install_dir_move.py)
-# The checkout lives in ~\.dodaios. An install made under the earlier name
+# The checkout lives in ~\.jmxs. An install made under the earlier name
 # keeps its directory for as long as that is a real directory (not a junction
 # or a link), and an update run moves it (Invoke-InstallDirMigration below). A
 # directory given in JARVIS_INSTALL_DIR (or DODAIOS_INSTALL_DIR) is used as
 # given, never moved.
-$DefaultInstallDirName = '.dodaios'
-$LegacyInstallDirName = '.personal-jarvis'
+$DefaultInstallDirName = '.jmxs'
+# JMXS has no earlier name: alias the current folder, never another product's.
+$LegacyInstallDirName = $DefaultInstallDirName
 $CurrentInstallDir = Join-Path $env:USERPROFILE $DefaultInstallDirName
 $LegacyInstallDir = Join-Path $env:USERPROFILE $LegacyInstallDirName
 $MigrateLegacyInstallDir = $false
@@ -307,7 +308,7 @@ function Test-PythonCandidate {
 }
 
 # Private copies of Python and Git for a machine that has neither. They land in
-# %LOCALAPPDATA%\Dodaios\tools without administrator rights or a prompt, and
+# %LOCALAPPDATA%\JMXS\tools without administrator rights or a prompt, and
 # nothing is added to the user's PATH or registry: this installer and the app
 # (dodaios/core/path_augment.py) look in that folder themselves. Every download
 # is pinned to a version and checked against its SHA-256 before it is used.
@@ -325,7 +326,7 @@ $BundledGitZip = @{
 
 function Get-BundledToolsDir {
     if (-not $env:LOCALAPPDATA) { return $null }
-    return (Join-Path $env:LOCALAPPDATA 'Dodaios\tools')
+    return (Join-Path $env:LOCALAPPDATA 'JMXS\tools')
 }
 
 function Get-BundledArch {
@@ -406,7 +407,7 @@ function Install-BundledPython {
         $url = "https://github.com/astral-sh/uv/releases/download/$BundledUvVersion/uv-$arch-pc-windows-msvc.zip"
         if (-not (Expand-BundledZip $url $BundledUvSha256[$arch] $uvDir)) { return $false }
     }
-    Write-Note "downloading Python $BundledPythonVersion (about 30 MB, only for Dodaios)"
+    Write-Note "downloading Python $BundledPythonVersion (about 30 MB, only for JMXS)"
     $uvOutput = & $uvExe python install $BundledPythonVersion --install-dir (Join-Path $toolsDir 'python') `
         --no-bin --no-registry --quiet 2>&1
     $uvCode = $LASTEXITCODE
@@ -415,7 +416,7 @@ function Install-BundledPython {
         @($uvOutput | Select-Object -Last 8) | ForEach-Object { Write-Note ([string]$_) }
         return $false
     }
-    Write-Ok "Python $BundledPythonVersion ready (private copy for Dodaios)"
+    Write-Ok "Python $BundledPythonVersion ready (private copy for JMXS)"
     return $true
 }
 
@@ -424,10 +425,10 @@ function Install-BundledGit {
     $arch = Get-BundledArch
     if (-not $toolsDir -or -not $arch) { return $false }
     $asset = $BundledGitZip[$arch]
-    Write-Note 'downloading Git (about 40 MB, only for Dodaios)'
+    Write-Note 'downloading Git (about 40 MB, only for JMXS)'
     $url = "https://github.com/git-for-windows/git/releases/download/$BundledGitTag/$($asset.Name)"
     if (-not (Expand-BundledZip $url $asset.Sha256 (Join-Path $toolsDir 'git'))) { return $false }
-    Write-Ok 'Git ready (private copy for Dodaios)'
+    Write-Ok 'Git ready (private copy for JMXS)'
     return $true
 }
 
@@ -566,7 +567,7 @@ function Request-PrerequisiteConsent {
         return $false
     }
     Write-Note "Missing required software: $($Missing -join ', ')."
-    Write-Note 'Dodaios can install it with WinGet, wait for completion, and continue this same run.'
+    Write-Note 'JMXS can install it with WinGet, wait for completion, and continue this same run.'
     Write-Note 'Continuing also accepts the package and WinGet source agreements for these packages.'
     try {
         $answer = Read-Host '  Install the missing prerequisites now? [Y/n]'
@@ -614,7 +615,7 @@ function Invoke-MissingPrerequisiteInstall {
     param($State)
     $wingetCheck = Test-Tool 'winget'
     if (-not $wingetCheck.Found) {
-        Write-Err 'WinGet is not available, so Dodaios cannot install the prerequisites automatically.'
+        Write-Err 'WinGet is not available, so JMXS cannot install the prerequisites automatically.'
         return $false
     }
     $installOk = $true
@@ -666,7 +667,7 @@ function Ensure-Prerequisites {
     }
 
     # A private copy needs no administrator rights and changes nothing outside
-    # the Dodaios folder, so it is fetched without asking. WinGet and the
+    # the JMXS folder, so it is fetched without asking. WinGet and the
     # consent prompt below stay the fallback when that download fails.
     if ($PrerequisiteMode -ne 'never') {
         if (Install-BundledPrerequisites $state) {
@@ -724,7 +725,7 @@ $pythonVer = "Python $($prerequisites.Python.Version)"
 
 # Node.js 18+ -- powers only the OPTIONAL agent worker CLIs (Claude
 # Code / Codex) that heavy missions delegate to, plus the Node-based
-# marketplace integrations. Everything else in Dodaios runs without it, so a
+# marketplace integrations. Everything else in JMXS runs without it, so a
 # missing Node must NEVER turn a new user away at the door: we note it and
 # continue -- the worker CLI can be added later in-app once Node is installed.
 # Skipped entirely on the headless / tiny-VPS path (--headless): a cloud-only
@@ -740,7 +741,7 @@ if ($ExtraArgs -contains '--headless') {
     if ($nodeOk) {
         Write-Ok "Node.js $($nodeCheck.Version)"
     } else {
-        Write-Note 'Node.js 18+ not found - continuing, Dodaios runs fine without it.'
+        Write-Note 'Node.js 18+ not found - continuing, JMXS runs fine without it.'
         Write-Note 'It only powers the optional coding-agent worker (Claude Code / Codex).'
         Write-Note 'Install the LTS build any time from https://nodejs.org/ and add the'
         Write-Note 'worker later in-app.'
@@ -748,7 +749,7 @@ if ($ExtraArgs -contains '--headless') {
 }
 
 # ----------------------------------------------------------------- clone / update
-Write-Phase '2/6' 'Fetching Dodaios'
+Write-Phase '2/6' 'Fetching JMXS'
 Write-Note $InstallDir
 
 # On an interactive console, git paints its own "Receiving objects: NN%"
@@ -835,7 +836,7 @@ function Invoke-TarballFallback {
     $AssetBase = "https://github.com/$RepoPath/releases/latest/download"
     # The archive's current name first; releases cut before the rename only
     # carry the earlier one.
-    $AssetNames = @('dodaios-src.tar.gz', 'personal-jarvis-src.tar.gz')
+    $AssetNames = @('jmxs-src.tar.gz')
     $SnapshotUrl = "https://codeload.github.com/$RepoPath/tar.gz/$(Get-RefArchivePath)"
     if ($env:JARVIS_PAYLOAD_COMMIT) {
         # A verified install is pinned to ONE signed commit; the "latest"
@@ -988,7 +989,7 @@ function Update-LegacyOrigin {
     }
 }
 
-# Stop any Dodaios still running out of THIS install. Called before the
+# Stop any JMXS still running out of THIS install. Called before the
 # checkout is replaced and again before its environment is rebuilt: a release
 # may move or delete files the live app still loads, and an app left running
 # across that keeps serving a half-old, half-new program until it falls over.
@@ -1043,10 +1044,10 @@ function Stop-RunningApp {
             }
             # Give the OS a beat to release file handles before files change.
             Start-Sleep -Milliseconds 500
-            Write-Note 'stopped the running Dodaios app for the update'
+            Write-Note 'stopped the running JMXS app for the update'
         }
     } catch {
-        Write-Note 'could not check for a running Dodaios app - continuing'
+        Write-Note 'could not check for a running JMXS app - continuing'
     }
     if ($StartedInsideApp) {
         Write-Err 'this installer was started from inside the running app.'
@@ -1227,7 +1228,7 @@ Write-Phase '3/6' 'Python environment'
 $VenvPath = Join-Path $InstallDir '.venv'
 $VenvPython = Join-Path $VenvPath 'Scripts\python.exe'
 
-# Update runs: stop any Dodaios still running out of THIS install before we
+# Update runs: stop any JMXS still running out of THIS install before we
 # touch its environment. A live app (often revived by the login autostart)
 # keeps serving stale, half-updated features while pip rewrites the venv
 # under it - the "app is already open but nothing works yet" field report
@@ -1254,8 +1255,8 @@ if ($LASTEXITCODE -ne 0) {
 if ($LASTEXITCODE -ne 0) {
     Write-Err 'bootstrap pip install failed.'
     Write-Note 'Check your connection, then run the installer again.'
-    Write-Note 'If your antivirus quarantined a file, restore it and allow the Dodaios folder first.'
-    Write-Note 'Help: https://github.com/Dodaios/Dodaios/blob/main/docs/product/start-here/install-dodaios.md#troubleshooting'
+    Write-Note 'If your antivirus quarantined a file, restore it and allow the JMXS folder first.'
+    Write-Note 'Help: https://github.com/juantmontica75-ctrl/Dodaios/blob/main/docs/product/start-here/install-dodaios.md#troubleshooting'
     exit 1
 }
 Write-Ok 'bootstrap dependencies ready'
