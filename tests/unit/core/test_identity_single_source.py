@@ -39,6 +39,14 @@ from dodaios.ui.desktop_log import DESKTOP_LOG_FILE_NAME, desktop_log_path
 _ROOT = Path(__file__).resolve().parents[3]
 
 
+def _first(names: tuple[str, ...]) -> str:
+    """The first earlier name, or ``""`` when the product declares none.
+
+    JMXS declares no earlier names, so the ``LEGACY_*`` tuples are empty.
+    """
+    return names[0] if names else ""
+
+
 def _read(relative_path: str) -> str:
     return (_ROOT / relative_path).read_text(encoding="utf-8")
 
@@ -187,7 +195,7 @@ def _distinctive_identity_values() -> dict[str, str]:
             if not isinstance(item, str):
                 continue
             folded = item.casefold().replace("-", "").replace(" ", "")
-            if "personaljarvis" in folded and "/" not in item:
+            if "jmxsdesktop" in folded and "/" not in item:
                 found.setdefault(item, name)
     return found
 
@@ -200,7 +208,8 @@ def _shipped_python_files() -> list[Path]:
 
 def test_no_module_restates_an_identity_value() -> None:
     values = _distinctive_identity_values()
-    assert branding.LEGACY_KEYRING_SERVICE_NAMES[0] in values
+    for legacy_service in branding.LEGACY_KEYRING_SERVICE_NAMES:
+        assert legacy_service in values
     assert branding.MACOS_BUNDLE_ID in values
     # The current credential service is the bare product word, which is also
     # the package, the command and the MCP server name: a literal equal to it
@@ -274,11 +283,18 @@ def test_the_scripts_restate_the_install_directory_names(
     relative_path: str, current: str, legacy: str
 ) -> None:
     # Each script names the current folder and the one earlier name it still
-    # recognises; there is one earlier name, so one variable carries it.
-    assert branding.LEGACY_DEFAULT_INSTALL_DIR_NAMES == (".personal-jarvis",)
+    # recognises. JMXS has no earlier name, so the variable aliases the current
+    # folder: it is never empty, because an empty name would be the home directory.
+    assert branding.LEGACY_DEFAULT_INSTALL_DIR_NAMES == ()
     lines = _read(relative_path).splitlines()
     assert current.format(branding.DEFAULT_INSTALL_DIR_NAME) in lines
-    assert legacy.format(branding.LEGACY_DEFAULT_INSTALL_DIR_NAMES[0]) in lines
+    # Either the literal current name or an alias of the current variable.
+    alias = legacy.format("$DEFAULT_INSTALL_DIR_NAME")
+    ps_alias = legacy.format("$DefaultInstallDirName")
+    accepted = {legacy.format(branding.DEFAULT_INSTALL_DIR_NAME), alias, ps_alias}
+    accepted |= {line.replace('"$DEFAULT_INSTALL_DIR_NAME"', "$DEFAULT_INSTALL_DIR_NAME") for line in accepted}
+    accepted.add(legacy.format("").split("=")[0].strip() + " = $DefaultInstallDirName")
+    assert accepted & set(lines)
 
 
 def test_the_installers_read_the_migration_engine_from_where_it_lives() -> None:
@@ -304,17 +320,19 @@ def test_the_shell_uninstaller_restates_the_macos_identifiers(
 def test_the_shell_uninstaller_restates_both_bundle_names() -> None:
     script = _read("install/uninstall.sh")
     assert f'\nMACOS_APP_DIR_NAME="{branding.MACOS_APP_DIR_NAME}"\n' in script
-    assert branding.LEGACY_MACOS_APP_DIR_NAMES == ("Personal Jarvis.app",)
-    legacy = branding.LEGACY_MACOS_APP_DIR_NAMES[0]
-    assert f'\nLEGACY_MACOS_APP_DIR_NAME="{legacy}"\n' in script
+    assert branding.LEGACY_MACOS_APP_DIR_NAMES == ()
+    # No earlier bundle: the variable aliases the current one, never empty.
+    assert '\nLEGACY_MACOS_APP_DIR_NAME="$MACOS_APP_DIR_NAME"\n' in script
     assert 'for app_dir_name in "$MACOS_APP_DIR_NAME" "$LEGACY_MACOS_APP_DIR_NAME"; do' in script
 
 
 def test_the_shell_uninstaller_names_every_credential_service() -> None:
     script = _read("install/uninstall.sh")
     assert f'\nKEYRING_SERVICE_NAME="{branding.KEYRING_SERVICE_NAME}"\n' in script
-    legacy = " ".join(branding.LEGACY_KEYRING_SERVICE_NAMES)
-    assert f'\nLEGACY_KEYRING_SERVICE_NAMES="{legacy}"\n' in script
+    # JMXS has no earlier credential service, so the script lists none and
+    # never reads or deletes another product's keys.
+    assert branding.LEGACY_KEYRING_SERVICE_NAMES == ()
+    assert "LEGACY_KEYRING_SERVICE_NAMES" not in script
 
 
 @pytest.mark.parametrize(
@@ -323,11 +341,11 @@ def test_the_shell_uninstaller_names_every_credential_service() -> None:
         ("AppName", branding.LAUNCHER_ENTRY_NAME),
         ("GuiExeName", branding.WINDOWS_BRANDED_LAUNCHER_FILE_NAME),
         ("CliExeName", f"{branding.CLI_COMMAND_NAME}.exe"),
-        ("LegacyCliExeName", f"{branding.LEGACY_CLI_COMMAND_NAMES[0]}.exe"),
+        ("LegacyCliExeName", f"{_first(branding.LEGACY_CLI_COMMAND_NAMES)}.exe"),
         ("UserDataDirDisplay", rf"%LOCALAPPDATA%\{branding.WINDOWS_USER_DATA_DIR_NAME}"),
         ("AppPublisher", branding.LAUNCHER_ENTRY_NAME),
-        ("LegacyAppName", branding.LEGACY_LAUNCHER_ENTRY_NAMES[0]),
-        ("LegacyGuiExeName", branding.LEGACY_WINDOWS_BRANDED_LAUNCHER_FILE_NAMES[0]),
+        ("LegacyAppName", _first(branding.LEGACY_LAUNCHER_ENTRY_NAMES)),
+        ("LegacyGuiExeName", _first(branding.LEGACY_WINDOWS_BRANDED_LAUNCHER_FILE_NAMES)),
     ],
 )
 def test_the_windows_installer_script_restates_the_names(definition: str, expected: str) -> None:
@@ -356,7 +374,7 @@ def test_the_windows_installer_retires_the_earlier_shortcuts_and_keeps_its_ident
 
 def test_the_packaging_scripts_restate_the_names() -> None:
     windows = _read("packaging/windows/build.ps1")
-    frozen_cli_names = (branding.CLI_COMMAND_NAME, branding.LEGACY_CLI_COMMAND_NAMES[0])
+    frozen_cli_names = (branding.CLI_COMMAND_NAME, *branding.LEGACY_CLI_COMMAND_NAMES[:1])
     required = (
         branding.WINDOWS_BRANDED_LAUNCHER_FILE_NAME,
         *branding.LEGACY_WINDOWS_BRANDED_LAUNCHER_FILE_NAMES,
@@ -391,12 +409,10 @@ def test_the_project_metadata_restates_the_distribution_and_its_commands() -> No
         assert scripts[legacy] == scripts[branding.CONTROL_CLI_COMMAND_NAME], legacy
     assert scripts[branding.CLI_COMMAND_NAME] != scripts[branding.CONTROL_CLI_COMMAND_NAME]
     # No further alias of either command is registered behind branding's back.
-    # The one exception is the short control alias, which is a console script
-    # but deliberately not one of the commands the installer puts on PATH.
+    # JMXS has no short control alias either.
     commands = {scripts[branding.CLI_COMMAND_NAME], scripts[branding.CONTROL_CLI_COMMAND_NAME]}
     aliases = {name for name, target in scripts.items() if target in commands}
-    assert aliases - set(branding.CLI_COMMAND_NAMES) == {"jctl"}
-    assert scripts["jctl"] == scripts[branding.CONTROL_CLI_COMMAND_NAME]
+    assert aliases - set(branding.CLI_COMMAND_NAMES) == set()
     data_files = project["tool"]["setuptools"]["data-files"]
     assert data_files, "the wheel ships its reader documents as data files"
     for target in data_files:
@@ -666,10 +682,7 @@ def test_the_launcher_names_stay_clear_of_the_commands_that_exist() -> None:
     # The windowed executable shares a folder with the console scripts, under
     # its current name and its earlier one (the frozen build ships both).
     gui = [name for name in _current_names() if name.role == "gui-exe"]
-    assert {(name.generation, name.value) for name in gui} >= {
-        ("current", "DodaiosApp"),
-        ("legacy", "PersonalJarvis"),
-    }
+    assert {(name.generation, name.value) for name in gui} >= {("current", "JMXSApp")}
     commands = {name.casefold() for name in _console_scripts()}
     for name in gui:
         assert name.value.casefold() not in commands
@@ -681,10 +694,10 @@ def test_the_launcher_names_stay_clear_of_the_commands_that_exist() -> None:
 def test_the_windows_identity_moved_with_its_earlier_names_in_the_table() -> None:
     names = _current_names()
     found = {(n.namespace, n.role, n.generation, n.value) for n in names}
-    assert ("localappdata-dir", "launcher", "current", "DodaiosApp") in found
-    assert ("localappdata-dir", "launcher", "legacy", "PersonalJarvis") in found
-    assert ("start-menu", "app", "current", "Dodaios.lnk") in found
-    assert ("start-menu", "app", "legacy", "Personal Jarvis.lnk") in found
+    assert ("localappdata-dir", "launcher", "current", "JMXSApp") in found
+    assert ("start-menu", "app", "current", "JMXS.lnk") in found
+    # JMXS has no earlier names, so nothing legacy is in the table.
+    assert not [n for n in names if n.generation == "legacy"]
     # The launcher folder sits beside the data directory, so it cannot take
     # the plain product name the data directory has.
     data = next(n for n in names if n.role == "data" and n.namespace == "localappdata-dir")
@@ -695,7 +708,7 @@ def test_the_windows_identity_moved_with_its_earlier_names_in_the_table() -> Non
 def test_the_macos_bundle_name_moved_with_its_earlier_name_in_the_table() -> None:
     names = _current_names()
     bundle = {(n.generation, n.value) for n in names if n.namespace == "applications-dir"}
-    assert bundle == {("current", "Dodaios.app"), ("legacy", "Personal Jarvis.app")}
+    assert bundle == {("current", "JMXS.app")}
 
 
 def test_the_planned_names_collide_with_nothing_an_installation_carries() -> None:
@@ -705,27 +718,23 @@ def test_the_planned_names_collide_with_nothing_an_installation_carries() -> Non
 def test_the_data_directory_moved_with_its_earlier_names_in_the_table() -> None:
     names = _current_names()
     data = {(n.namespace, n.generation, n.value) for n in names if n.role == "data"}
-    assert ("localappdata-dir", "current", "Dodaios") in data
-    assert ("localappdata-dir", "legacy", "Jarvis") in data
-    assert ("home-dir", "current", ".dodaios-data") in data
-    assert ("home-dir", "legacy", ".jarvis") in data
+    assert ("localappdata-dir", "current", "JMXS") in data
+    assert ("home-dir", "current", ".jmxs-data") in data
+    assert not {entry for entry in data if entry[1] == "legacy"}
     config = {(n.generation, n.value) for n in names if n.role == "config"}
-    assert config == {("current", "dodaios.toml"), ("legacy", "jarvis.toml")}
+    assert config == {("current", "jmxs.toml")}
     # A launcher folder named like the data directory would be the same folder.
-    clash = IdentityName("localappdata-dir", "launcher", "planned", "dodaios")
+    clash = IdentityName("localappdata-dir", "launcher", "planned", "jmxs")
     assert len(_collisions([*names, clash])) == 1
 
 
 def test_the_install_directory_moved_with_its_earlier_name_in_the_table() -> None:
     names = _current_names()
     install = {(n.namespace, n.generation, n.value) for n in names if n.role == "install"}
-    assert install == {
-        ("home-dir", "current", ".dodaios"),
-        ("home-dir", "legacy", ".personal-jarvis"),
-    }
+    assert install == {("home-dir", "current", ".jmxs")}
     # The data directory's fallback sits in the same home directory and must
     # never be spelled like the install directory, under either name.
-    clash = IdentityName("home-dir", "data", "planned", ".DODAIOS")
+    clash = IdentityName("home-dir", "data", "planned", ".JMXS")
     assert len(_collisions([*names, clash])) == 1
 
 

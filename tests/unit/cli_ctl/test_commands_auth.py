@@ -3,6 +3,7 @@ import json
 from typer.testing import CliRunner
 
 from dodaios.cli_ctl.__main__ import app
+from dodaios.core.branding import CLI_COMMAND_NAME, CONTROL_CLI_COMMAND_NAME
 
 runner = CliRunner()
 
@@ -10,11 +11,11 @@ runner = CliRunner()
 def test_version_runs_without_server():
     res = runner.invoke(app, ["version"])
     assert res.exit_code == 0
-    assert "dodaiosctl" in res.stdout
-    # The earlier name still runs it, and is the name it answers with.
-    res = runner.invoke(app, ["version"], prog_name="jarvisctl")
+    assert CONTROL_CLI_COMMAND_NAME in res.stdout
+    # The launcher name runs it too, and is the name it answers with.
+    res = runner.invoke(app, ["version"], prog_name=CLI_COMMAND_NAME)
     assert res.exit_code == 0
-    assert res.stdout.startswith("jarvisctl ")
+    assert res.stdout.startswith(f"{CLI_COMMAND_NAME} ")
 
 
 def test_login_stores_key_after_successful_probe(mock_api, tmp_path):

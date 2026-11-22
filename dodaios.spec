@@ -570,8 +570,8 @@ if sys.platform == "darwin":
         bundle_identifier=MACOS_BUNDLE_IDENTIFIER,
         version=VERSION,
         info_plist={
-            "CFBundleName": "Dodaios",
-            "CFBundleDisplayName": "Dodaios",
+            "CFBundleName": "JMXS",
+            "CFBundleDisplayName": "JMXS",
             "CFBundleExecutable": GUI_EXE_NAME,
             "CFBundleIdentifier": MACOS_BUNDLE_IDENTIFIER,
             "CFBundleShortVersionString": VERSION,

@@ -17,8 +17,8 @@ Audio I/O contract (compatible with the Jarvis VAD output):
 API key resolution order:
   1. constructor argument
   2. ``GROQ_API_KEY`` env var
-  3. The OS credential manager via ``keyring`` (service ``dodaios``, then the
-     earlier ``personal-jarvis``; username ``groq_api_key``) — same convention
+  3. The OS credential manager via ``keyring`` (service ``jmxs``;
+     username ``groq_api_key``) — same convention
      as the rest of the app,
      without importing ``dodaios.*`` (the third-party ``keyring`` package is
      a soft dependency; if it is missing the lookup is silently skipped).
@@ -338,8 +338,8 @@ class GroqWhisperAPI:
 #: ``dodaios.core.branding.KEYRING_SERVICE_NAME`` and
 #: ``LEGACY_KEYRING_SERVICE_NAMES``;
 #: ``tests/unit/core/test_identity_single_source.py`` pins them together.
-_KEYRING_SERVICE = "dodaios"
-_LEGACY_KEYRING_SERVICES = ("personal-jarvis",)
+_KEYRING_SERVICE = "jmxs"
+_LEGACY_KEYRING_SERVICES: tuple[str, ...] = ()
 
 
 def _read_keyring_secret(username: str) -> str:

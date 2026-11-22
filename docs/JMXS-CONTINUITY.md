@@ -114,3 +114,37 @@ Done and committed (see `git log` on this branch):
   update origins.
 - Keep original art, credits, NOTICE and LICENSE.
 - Never print or commit secrets (`.env*`, API keys).
+
+## Session 4 (recovery from handoff zip)
+
+Verified state: remote `jmxs/independent-runtime` was at `fee50a2`; the
+session-3 commits (`17e4b14` .. `46f0c18`) never reached GitHub and are not
+recoverable as diffs. Their intent is being redone on top of `fee50a2`.
+
+Done in this session (local commit, push pending — the sandbox had no GitHub
+credential, only the file-level GitHub connector):
+- CLI/control-CLI tests rewritten for `jmxs` / `jmxsctl` (no earlier names);
+  `jmxsctl version` now prints `PRODUCT_NAME` instead of a hard-coded "Dodaios".
+- `tests/unit/core/test_identity_single_source.py`: collection error fixed
+  (`_first()` guard), expectations rewritten for empty `LEGACY_*` tuples.
+- Real product bugs found by those tests and fixed: STT plugins read keyring
+  service `dodaios` (now `jmxs`); OpenRouter plugins sent the upstream
+  Referer / `X-Title: Dodaios`; PyInstaller `CFBundleName` was "Dodaios";
+  `pyproject.toml` installed docs under `share/dodaios/` while the code reads
+  `share/<distribution>/` (now `share/jmxs/`).
+
+STILL OPEN (tests in `test_identity_single_source.py` fail on purpose until done):
+1. `packaging/windows/Dodaios.iss`: names, publisher, URL, exe names, and a NEW
+   `AppGuid` (JMXS must not upgrade over a Dodaios install). Update the
+   SignPath/CI names that pin the setup file name.
+2. `packaging/windows/build.ps1`, `packaging/linux/build.sh`,
+   `packaging/macos/build.sh`: JMXS names, no `PersonalJarvis`/`jarvis` shims.
+3. `install/install.sh`, `install/install.ps1`, `install/install-verify.*`:
+   still the Dodaios one-line installers (`.dodaios`, upstream raw URLs).
+4. `dodaios/cli/app_update.py` (and `response_style.py`, `voice_engine/models.py`)
+   still point at `github.com/Dodaios/Dodaios` installers/URLs.
+5. Folder-by-folder main-vs-branch unit comparison after `credential_broker`,
+   `brain` file by file; full `npm test`, build with
+   `NODE_OPTIONS=--max-old-space-size=4096`, ruff classification, wheel rebuild.
+   This sandbox lacks typer/httpx/tomlkit/pytest-asyncio and cannot install
+   them, so those runs must happen where dependencies are available.

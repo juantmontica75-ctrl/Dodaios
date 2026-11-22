@@ -1044,8 +1044,8 @@ dodaios = [
 ]
 
 [tool.setuptools.data-files]
-"share/dodaios/docs" = ["docs/product/**/*.md"]
-"share/dodaios/docs/legal" = ["docs/legal/TERMS.md"]
+"share/jmxs/docs" = ["docs/product/**/*.md"]
+"share/jmxs/docs/legal" = ["docs/legal/TERMS.md"]
 
 [tool.ruff]
 line-length = 100

@@ -38,8 +38,8 @@ change the pipeline to be worth anything.
 API key resolution order (same convention as every other plugin here):
   1. constructor argument
   2. ``DEEPGRAM_API_KEY`` env var
-  3. OS credential manager via ``keyring`` (service ``dodaios``, then the
-     earlier ``personal-jarvis``; username ``deepgram_api_key``) — the name
+  3. OS credential manager via ``keyring`` (service ``jmxs``;
+     username ``deepgram_api_key``) — the name
      the setup wizard already writes.
 
 Never accept a key from voice/chat input (AP-2).
@@ -309,8 +309,8 @@ class DeepgramSTT:
 #: ``dodaios.core.branding.KEYRING_SERVICE_NAME`` and
 #: ``LEGACY_KEYRING_SERVICE_NAMES``;
 #: ``tests/unit/core/test_identity_single_source.py`` pins them together.
-_KEYRING_SERVICE = "dodaios"
-_LEGACY_KEYRING_SERVICES = ("personal-jarvis",)
+_KEYRING_SERVICE = "jmxs"
+_LEGACY_KEYRING_SERVICES: tuple[str, ...] = ()
 
 
 def _read_keyring_secret(username: str) -> str:

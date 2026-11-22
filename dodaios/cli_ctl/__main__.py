@@ -48,7 +48,7 @@ from dodaios.cli_ctl.commands import system as system_cmd
 from dodaios.cli_ctl.commands import tasks as tasks_cmd
 from dodaios.cli_ctl.commands import telephony as telephony_cmd
 from dodaios.cli_ctl.commands import workflows as workflows_cmd
-from dodaios.core.branding import CONTROL_CLI_COMMAND_NAME
+from dodaios.core.branding import CONTROL_CLI_COMMAND_NAME, PRODUCT_NAME
 
 
 class _CompatibleRootGroup(TyperGroup):
@@ -131,10 +131,9 @@ def version(ctx: typer.Context) -> None:
     """Print the CLI version."""
     from dodaios import __version__
 
-    # The name the command was started under: dodaios, dodaiosctl, or an
-    # earlier name of either.
+    # The name the command was started under: jmxs or jmxsctl.
     command = ctx.find_root().info_name or CONTROL_CLI_COMMAND_NAME
-    typer.echo(f"{command} (Dodaios {__version__})")
+    typer.echo(f"{command} ({PRODUCT_NAME} {__version__})")
 
 
 @app.command()
