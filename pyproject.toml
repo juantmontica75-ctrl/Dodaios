@@ -280,7 +280,7 @@ dev = [
     # packages were base dependencies until the cloud-first split; tests still
     # construct them, so the dev/CI environment keeps them via this self-reference
     # while the base install stays lean.
-    "dodaios[desktop,local-voice]",
+    "jmxs[desktop,local-voice]",
     "pytest>=8.3",
     "pytest-asyncio>=0.24",
     "pytest-cov>=6.0",
@@ -297,7 +297,7 @@ dev = [
 # native-engine-minimal floor for CI and tiny headless servers; users are pointed
 # at [full].
 full = [
-    "dodaios[desktop,desktop-macos,telephony,channels,local-voice]",
+    "jmxs[desktop,desktop-macos,telephony,channels,local-voice]",
 ]
 # Twilio telephony voice agent (call Jarvis on a phone number). Optional extra
 # per the cloud-first doctrine: the base install must boot without it, and the
