@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
-"""Build the ``dodaios`` sdist and wheel, and the ``personal-jarvis`` pointer to it.
+"""Build the ``jmxs`` sdist and wheel.
 
     python scripts/ci/build_distributions.py --outdir dist
+
+JMXS (an independent fork of Dodaios) publishes one distribution, ``jmxs``.
+It builds no compatibility package: ``personal-jarvis`` is upstream's earlier
+name on PyPI, and a pointer from it to ``jmxs`` would move upstream's users
+onto this fork. ``PUBLISH_COMPAT`` keeps the generator below for reference
+and for its tests; the notes that follow describe upstream's use of it.
 
 The project is ``dodaios`` on PyPI. Its earlier name, ``personal-jarvis``, is
 published at every release as a thin compatibility package and no longer as a
@@ -39,8 +45,10 @@ from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-CURRENT = "dodaios"
+CURRENT = "jmxs"
 LEGACY = "personal-jarvis"
+#: JMXS never builds the upstream compatibility package (module docstring).
+PUBLISH_COMPAT = False
 #: The only module the compatibility package ships.
 COMPAT_MODULE = "personal_jarvis_compat"
 
@@ -225,12 +233,17 @@ def build_all(
     root: Path = ROOT,
     build_command: Sequence[str] = (sys.executable, "-m", "build", "--no-isolation"),
     runner: Runner = _run,
+    publish_compat: bool = PUBLISH_COMPAT,
 ) -> dict[str, Path]:
-    """Build both distributions; return ``{name: its output directory}``."""
+    """Build the distributions; return ``{name: its output directory}``."""
     project = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))["project"]
     version = project["version"]
-    compat_pyproject(project)  # refuses a tree that is not dodaios before anything runs
-    outputs = {CURRENT: outdir / CURRENT, LEGACY: outdir / LEGACY}
+    if project["name"] != CURRENT:
+        raise ValueError(f"pyproject names {project['name']!r}, expected {CURRENT!r}")
+    outputs = {CURRENT: outdir / CURRENT}
+    if publish_compat:
+        compat_pyproject(project)
+        outputs[LEGACY] = outdir / LEGACY
     for directory in outputs.values():
         if directory.exists() and any(directory.iterdir()):
             raise ValueError(f"output directory is not empty: {directory}")
@@ -239,10 +252,11 @@ def build_all(
         runner([*build_command, "--outdir", str(outputs[CURRENT])], root)
     finally:
         _clean_build_state(root)
-    with tempfile.TemporaryDirectory(prefix="compat-") as scratch:
-        compat_root = Path(scratch) / LEGACY
-        write_compat_project(compat_root, project, root / "LICENSE")
-        runner([*build_command, "--outdir", str(outputs[LEGACY])], compat_root)
+    if publish_compat:
+        with tempfile.TemporaryDirectory(prefix="compat-") as scratch:
+            compat_root = Path(scratch) / LEGACY
+            write_compat_project(compat_root, project, root / "LICENSE")
+            runner([*build_command, "--outdir", str(outputs[LEGACY])], compat_root)
     for name, directory in outputs.items():
         found = {path.name for path in directory.iterdir()} if directory.is_dir() else set()
         expected = expected_artifacts(name, version)
